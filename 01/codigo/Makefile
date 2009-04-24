@@ -26,6 +26,3 @@ $(TARGET): $(OBJ)
 
 clean:
 	rm -f $(ODIR)/*.o *~ $(IDIR)/*~ $(TARGET)
-
-run: $(TARGET)
-	./$(TARGET) 1 ../../RL-instances/v10_d50.dat
