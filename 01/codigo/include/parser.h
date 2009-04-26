@@ -13,11 +13,11 @@
 #define MAX_BUFFER_SIZE 255
 
 struct graph {
-	int v;
-	int e;
-	int max_cost;
-	float **cost;
-	float **dist;
+	int v; /* n de vertices */
+	int e; /* n de arestas */
+	int max_cost; /* restricao de custo maximo */
+	float **cost; /* matriz de adjacencia para custos */
+	float **dist; /* matriz de adjacencia para distancia */
 };
 
 /* 

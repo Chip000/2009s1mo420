@@ -23,6 +23,7 @@ int parser(const char *filename, struct graph *G)
 	char buff[MAX_BUFFER_SIZE];
 
 	FILE *file;
+
 	if ((file = fopen(filename, "r")) == NULL) {
 		return 1;
 	}
