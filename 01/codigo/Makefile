@@ -6,10 +6,10 @@ VPATH=./src
 
 TARGET=relaxlag
 
-_DEPS = parser.h mytime.h
+_DEPS = myfunc.h mytime.h parser.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = parser.o mytime.o main.o 
+_OBJ = main.o myfunc.o mytime.o parser.o 
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 CFLAGS=-pedantic -g -Wall -I$(IDIR)

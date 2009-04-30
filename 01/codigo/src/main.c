@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libgen.h>
+#include "../include/myfunc.h"
 #include "../include/mytime.h"
 #include "../include/parser.h"
 
@@ -36,6 +37,9 @@ int main(int argc, char **argv) {
 	int relax;
 	char *filename;
 
+	float cost;
+	int *x;
+
 	if (argc < 3) {
 		fprintf(stderr, ">>>ERROR: Numero de parametros invalido!!\n");
 		display_help();
@@ -63,6 +67,16 @@ int main(int argc, char **argv) {
 	if (DEBUG == 1) {
 		print_graph(G);
 	}
+
+	cost = shortest_path(G.cost, G.v, 0, G.v - 1, &x);
+
+	fprintf(stderr, "Custo = %f\n", cost);
+
+	if (DEBUG == 1) {
+		print_shortest_path(x, G.v, cost);
+	}
+
+	free(x);
 
 	free_graph(G);
 
