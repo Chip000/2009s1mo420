@@ -6,41 +6,6 @@
 
 #include "../include/myfunc.h"
 
-/* 
- * init_int_array: Cria um vetor do tipo int de tamanho n, inicializado 
- * com valor v.
- */
-static int *init_int_array(int n, int v)
-{
-	int *t = (int *) malloc(n * sizeof(int));
-	int i;
-
-	for (i = 0; i < n; i++) {
-		t[i] = v;
-	}
-
-	return t;
-
-} /* init_int_array */
-
-/* 
- * init_float_array: Cria um vetor do tipo float de tamanho n, inicializado 
- * com valor v
- */
-static float *init_float_array(int n, float v)
-{
-	float *t = (float *) malloc(n * sizeof(float));
-	int i;
-	
-	for (i = 0; i < n; i++) {
-		t[i] = v;
-	}
-	
-	return t;
-
-} /* init_float_array */
-
-
 /*
  * min_dist_vertex: retorna o vertice que possui a menor distancia.
  */
@@ -65,20 +30,53 @@ static int min_dist_vertex(float *dist, int n, int *visited)
 
 } /* min_dist_vertex */
 
+/* 
+ * init_int_array: Cria um vetor do tipo int de tamanho n, inicializado
+ * com valor v.
+ */
+int *init_int_array(int n, int v)
+{
+	int *t = (int *) malloc(n * sizeof(int));
+	int i;
+
+	for (i = 0; i < n; i++) {
+		t[i] = v;
+	}
+
+	return t;
+
+} /* init_int_array */
+
+/* 
+ * init_float_array: Cria um vetor do tipo float de tamanho n, 
+ * inicializado com valor v
+ */
+float *init_float_array(int n, float v)
+{
+	float *t = (float *) malloc(n * sizeof(float));
+	int i;
+	
+	for (i = 0; i < n; i++) {
+		t[i] = v;
+	}
+	
+	return t;
+
+} /* init_float_array */
 
 /*
- * shortest_path: Utiliza o algoritmo de Dijkstra para encontrar o caminho 
- * mais curto de s a t em um grafo G.
- * Entradas: 
+ * shortest_path: Utiliza o algoritmo de Dijkstra para encontrar o 
+ * caminho mais curto de s a t em um grafo G.
+ * Entrada: 
  *   - Matriz de adjacencia contendo as distancias das arestas
  *   - Numero de vertices do grafo.
  *   - Vertice origem
  *   - Vertice destino
- * Saidas:
+ * Saida:
  *   - Conjunto solucao
  *   - Custo do caminho mais curto
  */
-int shortest_path(float **G, int n, int s, int t, int **x)
+float shortest_path(float **G, int n, int s, int t, int ***x)
 {
 	int i;
 	int j;
@@ -95,10 +93,22 @@ int shortest_path(float **G, int n, int s, int t, int **x)
 
 	/* Inicializacao */
 	cost = 0;
-	(*x) = init_int_array(n, 0);
 	dist = init_float_array(n, INF);
 	prev = init_int_array(n, -1);
 	visited = init_int_array(n, 0);
+
+	(*x) = (int **) malloc(n * sizeof(int *));
+
+	for (i = 0; i < n; i++) {
+		(*x)[i] = (int *) malloc(n * sizeof(int));
+	}
+
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			(*x)[i][j] = 0;
+		}
+	}
+
 	S = n;
 
 	/* Valores para o vertice origem */
@@ -125,13 +135,12 @@ int shortest_path(float **G, int n, int s, int t, int **x)
 		}
 	}
 
-	/* Encontrando o caminho de s para t */
-	(*x)[s] = 1;
-	(*x)[t] = 1;
+	/* Encontrando o caminho de s para t 
+	   (Conjunto solucao) */
 	i = t;
 	while (i != s) {
 		j = prev[i];
-		(*x)[j] = 1;
+		(*x)[i][j] = (*x)[j][i] = 1;
 		i = j;
 	}
 	
@@ -150,26 +159,35 @@ int shortest_path(float **G, int n, int s, int t, int **x)
 /* DEBUG FUNCTIONS */
 
 /*
- * print_shortest_path: Imprime o custo e o caminho mais curto da solucao dada
+ * print_shortest_path: Imprime o custo e o caminho mais curto da 
+ * solucao dada.
  */
-void print_shortest_path(int *x, int n, float cost)
+void print_shortest_path(int **x, int n, int s, int t, float cost)
 {
 	
 	int i;
+	int u;
 
-	fprintf(stderr, "\n>>>DEBUG:\n");
-	fprintf(stderr, "Custo: %f\n\n", cost);
-	fprintf(stderr, "Vertices do Caminho:\n");
+	fprintf(stdout, "\n>>>DEBUG:\n");
+	fprintf(stdout, "Custo: %f\n\n", cost);
+	fprintf(stdout, "Vertices do Caminho:\n");
 
-	for (i = 0; i < n; i++) {
-		if (x[i] != 0) {
+	i = 0;
+	u = s;
+	fprintf(stdout, "%d ", u);
+	while (u != t) {
+		if (x[u][i] != 0) {
 			fprintf(stderr, "%d ", i);
+			u = i;
+			i = -1;
 		}
+		i++;
 	}
+	fprintf(stdout, "%d ", t);
 
 	fprintf(stderr, "\n");
 
 	return;
-}
+} /* print_shortest_path */
 
 /* EOF */

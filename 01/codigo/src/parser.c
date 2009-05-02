@@ -41,7 +41,8 @@ int parser(const char *filename, struct graph *G)
 	/* Valor da restricao de custo maximo do caminho  */
 	fscanf(file, "Custo Max:%d\n", &(G->max_cost));
 	
-	/* Alocando espaco para a matriz de custo e de distancia das arestas */
+	/* Alocando espaco para a matriz de custo e de 
+	   distancia das arestas */
 	G->cost = (float **) malloc(G->v * sizeof(float *));
 	for (i = 0; i < G->v; i++) {
 		G->cost[i] = (float *) malloc(G->v * sizeof(float));
@@ -52,7 +53,8 @@ int parser(const char *filename, struct graph *G)
 		G->dist[i] = (float *) malloc(G->v * sizeof(float));
 	}
 
-	/* Pulando as 2 proximas linhas do arquivo (Arestas+cabecalho) */
+	/* Pulando as 2 proximas linhas do arquivo
+	   (Arestas+cabecalho) */
 	fgets(buff, MAX_BUFFER_SIZE, file);
 	fgets(buff, MAX_BUFFER_SIZE, file);
 

@@ -13,6 +13,8 @@
 /* 
  * timeval_subtract: Funcao auxiliar de contagem de tempo.
  */
-int timeval_subtract (struct timeval *result, struct timeval *x, struct timeval *y);
+int timeval_subtract (struct timeval *result, 
+		      struct timeval *x, 
+		      struct timeval *y);
 
 #endif /* ! HAVE_MYTIME_H */

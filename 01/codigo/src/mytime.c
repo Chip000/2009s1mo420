@@ -8,10 +8,13 @@
 /* 
  * timeval_subtract: Funcao auxiliar de contagem de tempo.
  */
-int timeval_subtract (struct timeval *result, struct timeval *x, struct timeval *y) 
+int timeval_subtract (struct timeval *result, 
+		      struct timeval *x, 
+		      struct timeval *y) 
 {
 
-	/* Perform the carry for the later subtraction by updating y. */
+	/* Perform the carry for the later subtraction 
+	   by updating y. */
 	if (x->tv_usec < y->tv_usec) {
 		int nsec = (y->tv_usec - x->tv_usec) / 1000000 + 1;
 		y->tv_usec -= 1000000 * nsec;

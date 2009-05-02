@@ -1,3 +1,3 @@
-e = 1
+e = 0.1
 max_iter = 600
 max_iter_no_improv = 10

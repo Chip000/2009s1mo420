@@ -7,7 +7,7 @@
 #include "../include/subgrad.h"
 
 /*
- * copy_matrix: Copia o valor da matriz src para dest
+ * copy_matrix: Copia o valor da matriz src para dest.
  */
 static void copy_matrix(int ***dest, int **src, int n)
 {
@@ -23,6 +23,25 @@ static void copy_matrix(int ***dest, int **src, int n)
 	return;
 
 } /* copy_matrix */			
+
+/*
+ * new_cost: Calcula o custos das arestas para a solucao primal.
+ */
+static void new_cost(float ***c, float **a, float **b, int n)
+{
+	int i;
+	int j;
+
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			(*c)[i][j] = a[i][j] + b[i][j];
+		}
+	}
+
+	return;
+
+} /* new_cost */
+
 
 /*
  * calc_solution: Calcula o valor da distancia do conjunto  
@@ -46,6 +65,27 @@ static float calc_solution(struct graph *G, int **x)
 
 } /* calc_solution */
 
+/*
+ * calc_cost: Calcula o custo do caminho do conjunto  
+ * solucao dado.
+ */
+static float calc_cost(struct graph *G, int **x)
+{
+	int i;
+	int j;
+
+	float cost;
+
+	cost = 0;
+	for (i = 0; i < G->v; i++) {
+		for (j = i; j < G->v; j++) {
+			cost = cost + (G->cost[i][j] * x[i][j]);
+		}
+	}
+
+	return cost;
+
+} /* calc_cost */
 
 /*
  * primal_bound: Encontra o limitante primal para o PCMCRC
@@ -59,10 +99,26 @@ static float primal_bound(struct graph *G, int ***x)
 {
 	float cost;
 	
-	/* Encontra o menor caminho usando o custo como distancia
-	   fazendo com que a restricao de custo (mochila) 
-	   seja satisfeita. */
-	cost = shortest_path(G->cost, G->v, 0, G->v - 1, x);
+	float **C;
+
+	int i;
+	int j;
+	
+	/* Calculando os custos das arestas */
+	C = (float **) malloc(G->v * sizeof(float *));
+	for (i = 0; i < G->v; i++) {
+		C[i] = (float *) malloc(G->v * sizeof(float));
+	}
+	
+	new_cost(&C, G->cost, G->dist, G->v);
+
+	/* Encontra o menor caminho usando o custo + distancia
+	   como distancia fazendo com que a restricao de custo 
+	   (mochila) seja satisfeita. */
+	cost = shortest_path(C, G->v, 0, G->v - 1, x);
+	
+	/* Calculando o custo da solucao encontrada */
+	cost = calc_cost(G, (*x));
 
 	if (cost > G->max_cost) {
 		fprintf(stderr, ">>>ERROR: primal_bound");
@@ -72,6 +128,20 @@ static float primal_bound(struct graph *G, int ***x)
 		return -1;
 	}
 
+	/* Liberando memoria */
+	for (i = 0; i < G->v; i++) {
+		free(C[i]);
+	}
+	free(C);
+
+/* 	for (i = 0; i < G->v; i++) { */
+/* 		for (j = i; j < G->v; j++) { */
+/* 			if ((*x)[i][j] != 0) { */
+/* 				fprintf(stderr, "%d %d\n", i,j); */
+/* 			} */
+/* 		} */
+/* 	} */
+	
 	/* Encontrando a distancia do caminho encontrado */
 	return calc_solution(G, (*x));
 	
@@ -241,6 +311,7 @@ void lag_heuristic(struct subgrad_param *subpar,
 	float lb_tmp;
 	float t;
 	float sol;
+	float cost;
 	float c;
 	float *u;
 
@@ -328,7 +399,6 @@ void lag_heuristic(struct subgrad_param *subpar,
 			}
 		}
 
-
 		while ((k <= subpar->max_iter) && (ub - lb >= 1)) {
 			/* Atualizando os custos lagrangeanos */
 			update_lag_cost_rl2(G, u[0], &lag_cost);
@@ -345,13 +415,14 @@ void lag_heuristic(struct subgrad_param *subpar,
 			if (is_feasible(G, x) != 0) {
 				if (lb_tmp > ub) {
 					copy_matrix(&x_sol, x, G->v);
-					ub = lb_tmp;
+					ub = calc_solution(G, x_sol);
 				}
 
 				/* Verificando se a solucao e otima
 				   para o PCMCRC */
 				if (is_optimal_rl2(G, x) != 0) {
 					sol = calc_solution(G, x);
+					cost = calc_cost(G, x);
 					break;
 				}
 			}
@@ -367,6 +438,7 @@ void lag_heuristic(struct subgrad_param *subpar,
 			if (ub - lb < 1) {
 				/* solucao encontrada e otima */
 				sol = calc_solution(G, x_sol);
+				cost = calc_cost(G, x_sol);
 				break;
 			}
 
@@ -391,7 +463,22 @@ void lag_heuristic(struct subgrad_param *subpar,
 			l++;
 		}
 		
+		/* caso ultrapasse o numero maximo de iteracoes */
+		if (k > subpar->max_iter) {
+			sol = calc_solution(G, x_sol);
+			cost = calc_cost(G, x_sol);
+			k--; /* ajuste no numero de iteracoes */
+		}
+		
+		/* Liberando memoria */
+		free(u);
+		for (i = 0; i < G->v; i++) {
+			free(lag_cost[i]);
+		}
+		free(lag_cost);
+
 		break;
+
 	default:
 		/* Empty */
 		break;
@@ -404,7 +491,7 @@ void lag_heuristic(struct subgrad_param *subpar,
 	timeval_subtract(&resub, &fub, &iub);
 	timeval_subtract(&reslb, &flb, &ilb);
 
-	fprintf(stdout, "Numero de iteracoes: %d \n", k);
+	fprintf(stdout, "Numero de iteracoes: %d \n", k + 1);
 	fprintf(stdout, "tempo: %ld seg e %ld microseg",
 		(time_t)resub.tv_sec, (suseconds_t)resub.tv_usec);
 	fprintf(stdout, " - limitante superior: %f\n", ub);
@@ -412,7 +499,8 @@ void lag_heuristic(struct subgrad_param *subpar,
 		(time_t)reslb.tv_sec, (suseconds_t)reslb.tv_usec);
 	fprintf(stdout, " - limitante inferior: %f\n", lb);
 
-	fprintf(stdout, "Custo da solucao: %f\n", sol);
+	fprintf(stdout, "Distancia do Caminho: %f\n", sol);
+	fprintf(stdout, "Custo do Caminho: %f\n", cost);
 
 
 	/* Liberando memoria */
