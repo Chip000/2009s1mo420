@@ -4,7 +4,7 @@
  * Autor: Victor de Abreu Iizuka ra046874 
  */
 
-#include "../include/subgrad.h"
+#include "../include/lagrel.h"
 
 /*
  * copy_matrix: Copia o valor da matriz src para dest.
@@ -42,6 +42,32 @@ static void new_cost(float ***c, float **a, float **b, int n)
 
 } /* new_cost */
 
+/* 
+ * print_solution: imprime os vertices do caminho de s a t
+ */
+static void print_solution(int **sol, int n, int s, int t)
+{
+	int i;
+	int u;
+	int tmp;
+	
+	fprintf(stdout, "Caminho: %d ", s);
+	u = s;
+	i = 0;
+	while ((u != t) && (i < n)) {
+		if (sol[u][i] != 0) {
+			fprintf(stdout, "%d ", i);
+			tmp = u;
+			u = i;
+			i = tmp;
+		}
+		i++;
+	}
+ 
+	fprintf(stdout, "\n");
+	return;
+
+} /* print_solution */
 
 /*
  * calc_solution: Calcula o valor da distancia do conjunto  
@@ -86,6 +112,234 @@ static float calc_cost(struct graph *G, int **x)
 	return cost;
 
 } /* calc_cost */
+
+/*
+ * update_lag_cost_rl1: Calcula o custo lagrangeano para a 
+ * relaxacao 1.
+ * Entrada:
+ *   - Informacoes sobre o grafo de entrada
+ *   - Multiplicadores de lagrange
+ * Saida:
+ *   - Custo lagrangeano
+ */
+static void update_lag_cost_rl1(struct graph *G, float *u, 
+				struct edge **E)
+{
+	int i;
+	int j;
+	int s;
+	int t;
+
+	float **lag_cost;
+
+	s = 0;
+	t = G->v -1;
+
+	/* Calculando o custo lagrangeano */
+	lag_cost = (float **) malloc(G->v * sizeof(float *));
+	for (i = 0; i < G->v; i++) {
+		lag_cost[i] = (float *) malloc(G->v *
+					       sizeof(float));
+	}
+
+	/* Vertice j != de s e t (sum(xij) - sum(xij) = 0)  */
+	for (j = 0; j < G->v; j++) {
+		for (i = 0; i < G->v; i++) {
+			lag_cost[j][i] = (G->dist)[j][i];
+		}
+	}
+
+	/* Vertice j != de s e t (sum(xij) = 2)  */
+/* 	for (j = 0; j < G->v; j++) { */
+/* 		for (i = 0; i < G->v; i++) { */
+/* 			lag_cost[j][i] = (G->dist)[j][i] + u[j]; */
+/* 		} */
+/* 	} */
+	
+	/* Vertice s */
+	for (i = 0; i < G->v; i++) {
+		if ((G->dist)[s][i] != 0) {
+			lag_cost[s][i] = (G->dist)[s][i] + u[s];
+			lag_cost[i][s] = (G->dist)[i][s] + u[s];
+		}
+		else {
+			lag_cost[s][i] = 0;
+			lag_cost[i][s] = 0;
+		}
+	}
+		
+	/* Vertice t */
+	for (i = 0; i < G->v; i++) {
+		if ((G->dist)[i][t] != 0) {
+			lag_cost[i][t] = (G->dist)[i][t] + u[t];
+			lag_cost[t][i] = (G->dist)[t][i] + u[t];
+		}
+		else {
+			lag_cost[i][t] = 0;
+			lag_cost[t][i] = 0;
+		}
+	}
+
+	/* Atualizando a estrutura de arestas para o
+	   novo custo */
+	update_edge_cost(lag_cost, G->e, E);
+
+	/* Liberando Memoria */
+	for (i = 0; i < G->v; i++) {
+		free(lag_cost[i]);
+	}
+	free(lag_cost);
+
+	return;
+
+} /* update_lag_cost_rl1 */
+
+/*
+ * update_lag_cost_rl2: Calcula o custo lagrangeano para a 
+ * relaxacao 2.
+ * Entrada:
+ *   - Informacoes sobre o grafo de entrada
+ *   - Multiplicadores de lagrange
+ * Saida:
+ *   - Custo lagrangeano
+ */
+static void update_lag_cost_rl2(struct graph *G, float u, float ***c)
+{
+	int i;
+	int j;
+	
+	for (i = 0; i < G->v; i++) {
+		for (j = 0; j < G->v; j++) {
+			(*c)[i][j] = (G->dist)[i][j] + u * (G->cost)[i][j];
+		}
+	}
+
+	return;
+} /* update_lag_cost_rl2 */
+
+/*
+ * is_feasible: Verifica se a solucao e viavel para o PCMCRC.
+ * Entrada:
+ *   - Informacoes sobre o grafo de entrada
+ *   - Conjunto solucao a ser analisado
+ * Saida:
+ *   - Retorna 1 caso seja viavel e 0 cc
+ */
+static int is_feasible(struct graph *G, int **x)
+{
+	int i;
+	int j;
+	int u;
+	int t;
+	int tmp;
+
+	float cost;
+
+	/* Verifica se forma um caminho */
+	u = 0;
+	t = G->v - 1;
+	i = 0;
+	while ((u != t) && (i < G->v)) {
+		if (x[u][i] != 0) {
+			tmp = u;
+			u = i;
+			i = tmp;
+		}
+		i++;
+	}
+
+	if (u != t) {
+		return 0;
+	}
+
+	/* calculando o custo da solucao */
+	cost = 0;
+	for (i = 0; i < G->v; i++) {
+		for (j = i; j < G->v; j++) {
+			cost = cost + ((G->cost)[i][j] * x[i][j]);
+		}
+	}
+
+	/* verificando se a restricao e satisfeita */
+	if (cost > G->max_cost) {
+		return 0;
+	}
+
+	return 1;
+
+} /* is_feasible */
+
+/*
+ * is_optimal_rl1: Verifica se a solucao e otima para o PCMCRC
+ * na relaxacao 1.
+ * Entrada:
+ *   - Informacoes sobre o grafo de entrada
+ *   - Conjunto solucao a ser analisado
+ * Saida:
+ *   - Retorna 1 caso seja otima e 0 cc
+ */
+static int is_optimal_rl1(struct graph *G, int **sol)
+{
+	int i;
+	int u;
+	int t;
+	int tmp;
+
+	/* Verifica se forma um caminho */
+	u = 0;
+	t = G->v - 1;
+	i = 0;
+	while ((u != t) && (i < G->v)) {
+		if (sol[u][i] != 0) {
+			tmp = u;
+			u = i;
+			i = tmp;
+		}
+		i++;
+	}
+
+	if (u != t) {
+		return 0;
+	}
+
+	return 1;
+
+} /* is_optimal_rl1 */
+
+/*
+ * is_optimal_rl2: Verifica se a solucao e otima para o PCMCRC
+ * na relaxacao 2.
+ * Entrada:
+ *   - Informacoes sobre o grafo de entrada
+ *   - Conjunto solucao a ser analisado
+ * Saida:
+ *   - Retorna 1 caso seja otima e 0 cc
+ */
+static int is_optimal_rl2(struct graph *G, int **x)
+{
+	int i;
+	int j;
+	
+	float c;
+
+	/* Verifica se a retricao da mochila e valida
+	   na igualdade */
+	c = G->max_cost;
+	for (i = 0; i < G->v; i++) {
+		for (j = 0; j < G->v; j++) {
+			c = c - ((G->cost)[i][j] * x[i][j]);
+		}
+	}
+	
+	/* Se nao e valida na igualdade a solucao nao e otima
+	   para o PCMCRC */
+	if (c != 0) {
+		return 0;
+	}
+
+	return 1;
+
+} /* is_optimal_rl2 */
 
 /*
  * primal_bound: Encontra o limitante primal para o PCMCRC
@@ -139,148 +393,6 @@ static float primal_bound(struct graph *G, int ***x)
 } /* primal_bound */
 
 /*
- * update_lag_cost_rl1: Calcula o custo lagrangeano para a 
- * relaxacao 1.
- * Entrada:
- *   - Informacoes sobre o grafo de entrada
- *   - Multiplicadores de lagrange
- * Saida:
- *   - Custo lagrangeano
- */
-static void update_lag_cost_rl1(struct graph *G)
-{
-	return;
-
-} /* update_lag_cost_rl1 */
-
-/*
- * update_lag_cost_rl2: Calcula o custo lagrangeano para a 
- * relaxacao 2.
- * Entrada:
- *   - Informacoes sobre o grafo de entrada
- *   - Multiplicadores de lagrange
- * Saida:
- *   - Custo lagrangeano
- */
-static void update_lag_cost_rl2(struct graph *G, float u, float ***c)
-{
-	int i;
-	int j;
-	
-	for (i = 0; i < G->v; i++) {
-		for (j = 0; j < G->v; j++) {
-			(*c)[i][j] = (G->dist)[i][j] + u * (*c)[i][j];
-		}
-	}
-
-	return;
-} /* update_lag_cost_rl2 */
-
-/*
- * is_feasible: Verifica se a solucao e viavel para o PCMCRC.
- * Entrada:
- *   - Informacoes sobre o grafo de entrada
- *   - Conjunto solucao a ser analisado
- * Saida:
- *   - Retorna 1 caso seja viavel e 0 cc
- */
-static int is_feasible(struct graph *G, int **x)
-{
-	int i;
-	int j;
-
-	float cost;
-
-	/* calculando o custo da solucao */
-	cost = 0;
-	for (i = 0; i < G->v; i++) {
-		for (j = i; j < G->v; j++) {
-			cost = cost + ((G->cost)[i][j] * x[i][j]);
-		}
-	}
-
-	/* verificando se a restricao e satisfeita */
-	if (cost > G->max_cost) {
-		return 0;
-	}
-
-	return 1;
-
-} /* is_feasible */
-
-/*
- * is_optimal_rl1: Verifica se a solucao e otima para o PCMCRC
- * na relaxacao 1.
- * Entrada:
- *   - Informacoes sobre o grafo de entrada
- *   - Conjunto solucao a ser analisado
- * Saida:
- *   - Retorna 1 caso seja otima e 0 cc
- */
-static int is_optimal_rl1(struct graph *G, int **sol)
-{
-	return 1;
-
-} /* is_optimal_rl1 */
-
-/*
- * is_optimal_rl2: Verifica se a solucao e otima para o PCMCRC
- * na relaxacao 2.
- * Entrada:
- *   - Informacoes sobre o grafo de entrada
- *   - Conjunto solucao a ser analisado
- * Saida:
- *   - Retorna 1 caso seja otima e 0 cc
- */
-static int is_optimal_rl2(struct graph *G, int **x)
-{
-	int i;
-	int j;
-	
-	float c;
-
-	/* Verifica se a retricao da mochila e valida
-	   na igualdade */
-	c = G->max_cost;
-	for (i = 0; i < G->v; i++) {
-		for (j = 0; j < G->v; j++) {
-			c = c - ((G->cost)[i][j] * x[i][j]);
-		}
-	}
-	
-	/* Se nao e valida na igualdade a solucao nao e otima
-	   para o PCMCRC */
-	if (c != 0) {
-		return 0;
-	}
-
-	return 1;
-
-} /* is_optimal_rl2 */
-
-/*
- * subgrad_parser: Parser para o arquivo contendo os parametros do 
- * metodo de subgradiente.  
- * Retorna 0 em caso de sucesso e 1 caso contrario.
- */
-int subgrad_parser(const char *filename, struct subgrad_param *subpar)
-{
-	FILE *f;
-
-	if ((f = fopen(filename, "r")) == NULL) {
-		return 1;
-	}
-	
-	fscanf(f, "e = %f\n", &(subpar->e));
-	fscanf(f, "max_iter = %d\n", &(subpar->max_iter));
-	fscanf(f, "max_iter_no_improv = %d\n", 
-	       &(subpar->max_iter_no_improv));
-
-	return 0;
-
-} /* subgrad_parser */
-
-/*
  * lag_heuristic: Heuristica lagrangeana que calcula os valores dos 
  * limitantes usando o metodo do subgradiente, encontrando a solucao
  * do problema.
@@ -303,7 +415,8 @@ void lag_heuristic(struct subgrad_param *subpar,
 	float t;
 	float sol;
 	float cost;
-	float c;
+	float cost_aux;
+	float *c;
 	float *u;
 
 	float **lag_cost;
@@ -315,6 +428,8 @@ void lag_heuristic(struct subgrad_param *subpar,
 	
 	int **x_sol;
 	int **x;
+
+	struct edge *E;
 
 	struct timeval iub;
 	struct timeval fub;
@@ -348,12 +463,15 @@ void lag_heuristic(struct subgrad_param *subpar,
 			x[i][j] = 0;
 		}
 	}
-				
+	
 	lb = 0;
 	ub = INF;
 
 	k = 0;
 	l = 0;
+	sol = INF;
+	cost = INF;
+	cost_aux = 0;
 
 	/* Encontrando o limitante primal */
 	gettimeofday(&iub, NULL);
@@ -368,11 +486,139 @@ void lag_heuristic(struct subgrad_param *subpar,
 	switch(rel) {
 	case 1: /* Problema da Mochila: Restricoes do PCMC 
 		   dualizadas */
+
+		/* Pegando o conjunto de arestas do grafo
+		   para facilitar a implementacao do algoritmo
+		   da mochila */
+		E = create_edge_array(G);
+
+		u = (float *) malloc(G->v * sizeof(float));
+		c = (float *) malloc(G->v * sizeof(float));
+
+		/* Multiplicadores de lagrange = 0 */
+		for (i = 0; i < G->v; i++) {
+			u[i] = 0;
+			c[i] = 0;
+		}
+
+		while ((k <= subpar->max_iter) && (ub - lb >= 1)) {
+			/* Atualizando os custos lagrangeanos */
+			update_lag_cost_rl1(G, u, &E);
+
+			/* Problema da mochila e de maximizacao */
+			lb_tmp = knapsack(E, G->e, G->v, G->max_cost, &x);
+
+			/* custo - u[s] - u[t] */
+			lb_tmp = lb_tmp - u[0] - u[G->v - 1];
+
+			/* sum(xij) = 2 */
+/* 			cost_aux = 0; */
+/* 			for (i = 1; i < G->v - 1; i++) { */
+/* 				cost_aux = cost_aux + 2 * u[i]; */
+/* 			} */
+/* 			lb_tmp = lb_tmp - cost_aux; */
+
+			fprintf(stderr, "%d lb_tmp: %f\n", k, lb_tmp);
+
+			for (i = 0; i < G->v; i++) {
+				for (j = 0; j < G->v; j++) {
+					fprintf(stderr, "%d ", x[i][j]);
+				}
+				fprintf(stderr,"\n");
+			}
+
+			/* Verifica se a solucao encontrada e viavel 
+			   para o PCMCRC */
+			if (is_feasible(G, x) != 0) {
+				if (lb_tmp > ub) {
+					copy_matrix(&x_sol, x, G->v);
+					ub = calc_solution(G, x_sol);
+				}
+
+				/* Verificando se a solucao e otima
+				   para o PCMCRC */
+				if (is_optimal_rl1(G, x) != 0) {
+					sol = calc_solution(G, x);
+					cost = calc_cost(G, x);
+					break;
+				}
+			}
+
+			if (lb_tmp > lb) {
+				lb = lb_tmp;
+				l = 0;
+			}
+						
+			fprintf(f_out, "\t%d\t%f\t%f\n", k, lb, ub);
+
+			/* Criterio de parada */
+			if (ub - lb < 1) {
+				/* solucao encontrada e otima */
+				sol = calc_solution(G, x_sol);
+				cost = calc_cost(G, x_sol);
+				break;
+			}
+
+			/* Atualizando os multiplicadores */
+			if (l > subpar->max_iter_no_improv) {
+				subpar->e = subpar->e / 2;
+				l = 0;
+			}
+
+			cost_aux = 0;
+			/* Vertices j != s e t */
+/* 			for (j = 1; j < G->v - 1; j++) { */
+/* 				c[j] = 2; */
+/* 				for (i = 0; i < G->v; i++) { */
+/* 					c[j] = c[j] - x[j][i]; */
+/* 				} */
+/* 				cost_aux = cost_aux + (c[j] * c[j]); */
+/* 			} */
+			
+			/* Vertice s */
+			c[0] = 1;
+			for (i = 0; i < G->v; i++) {
+				c[0] = c[0] - x[0][i];
+			}
+			cost_aux = cost_aux + (c[0] * c[0]); 
+			
+			/* Vertice t */
+			c[G->v - 1] = 1;
+			for (i = 0; i < G->v; i++) {
+				c[G->v-1] = c[G->v-1] - x[i][G->v-1];
+			}
+			cost_aux = cost_aux + (c[G->v-1] * c[G->v-1]); 
+
+			/******VERIFICAR AQUI A ATUALIZACAO DOS MULTIPLICADORES**********/
+
+			t = subpar->e * (lb_tmp - ub) / cost_aux;
+			for (j = 0; j < G->v; j++) {
+				u[j] = u[j] - t * c[j];
+			}
+
+			k++;
+			l++;
+		}
+		
+		/* caso ultrapasse o numero maximo de iteracoes */
+		if (k > subpar->max_iter) {
+			sol = calc_solution(G, x_sol);
+			cost = calc_cost(G, x_sol);
+			k--; /* ajuste no numero de iteracoes */
+		}
+		
+		/* Liberando memoria */
+		free(u);
+		free(c);
+
+		free_edge_array(E);
+
 		break;
 	case 2: /* Problema do PCMC: Restricao da Mochila
 		   dualizada */
 		
 		u = (float *) malloc(sizeof(float));
+		c = (float *) malloc(sizeof(float));
 
 		/* Multiplicadores de lagrange = 0 */
 		u[0] = 0;
@@ -383,7 +629,7 @@ void lag_heuristic(struct subgrad_param *subpar,
 			lag_cost[i] = (float *) malloc(G->v * 
 						       sizeof(float));
 		}
-
+	
 		for (i = 0; i < G->v; i++) {
 			for (j = 0; j < G->v; j++) {
 				lag_cost[i][j] = 0;
@@ -412,8 +658,9 @@ void lag_heuristic(struct subgrad_param *subpar,
 				/* Verificando se a solucao e otima
 				   para o PCMCRC */
 				if (is_optimal_rl2(G, x) != 0) {
-					sol = calc_solution(G, x);
-					cost = calc_cost(G, x);
+					copy_matrix(&x_sol, x, G->v);
+					sol = calc_solution(G, x_sol);
+					cost = calc_cost(G, x_sol);
 					break;
 				}
 			}
@@ -439,16 +686,16 @@ void lag_heuristic(struct subgrad_param *subpar,
 				l = 0;
 			}
 
-			c = G->max_cost;
+			c[0] = G->max_cost;
 			for (i = 0; i < G->v; i++) {
 				for (j = 0; j < G->v; j++) {
-					c = c - ((G->cost)[i][j] * 
+					c[0] = c[0] - ((G->cost)[i][j] * 
 						 x[i][j]);
 				}
 			}
 
-			t = subpar->e * (ub - lb_tmp) / (c * c) ;
-			u[0] = MAX(0, u[0] - t * c);
+			t = subpar->e * (lb_tmp - ub) / (c[0] * c[0]) ;
+			u[0] = MAX(0, u[0] + t * c[0]);
 
 			k++;
 			l++;
@@ -463,6 +710,8 @@ void lag_heuristic(struct subgrad_param *subpar,
 		
 		/* Liberando memoria */
 		free(u);
+		free(c);
+
 		for (i = 0; i < G->v; i++) {
 			free(lag_cost[i]);
 		}
@@ -471,7 +720,7 @@ void lag_heuristic(struct subgrad_param *subpar,
 		break;
 
 	default:
-		/* Empty */
+		fprintf(stderr, ">>>ERROR: relaxacao nao existente\n");
 		break;
 	}
 
@@ -492,7 +741,7 @@ void lag_heuristic(struct subgrad_param *subpar,
 
 	fprintf(stdout, "Distancia do Caminho: %f\n", sol);
 	fprintf(stdout, "Custo do Caminho: %f\n", cost);
-
+	print_solution(x_sol, G->v, 0, G->v -1);
 
 	/* Liberando memoria */
  	for (i = 0; i < G->v; i++) {
@@ -505,25 +754,5 @@ void lag_heuristic(struct subgrad_param *subpar,
 	return;
 
 } /* lag_heuristic */
-
-/* DEBUG FUNCTIONS */
-
-/* 
- * print_subgrad_param: imprime os parametros do metodo do 
- * subgradiente
- */
-void print_subgrad_param(struct subgrad_param subpar)
-{
-	fprintf(stdout, "\n>>>DEBUG: \n");
-
-	fprintf(stdout, "E:%f\n", subpar.e);
-	fprintf(stdout, "MAX_ITER:%d\n", subpar.max_iter);
-	fprintf(stdout, "MAX_ITER_NO_IMPROV:%d\n", subpar.max_iter_no_improv);
-	
-	fprintf(stdout, "\n");
-
-	return;
-
-} /* print_subgrad_param */
 
 /* EOF */

@@ -20,12 +20,26 @@ struct graph {
 	float **dist; /* matriz de adjacencia para distancia */
 };
 
+/* Estrutura para guardar os parametros do metodo do subgradiente */
+struct subgrad_param {
+	float e;
+	int max_iter;
+	int max_iter_no_improv;
+};
+
 /* 
- * parser: Guarda as informacoes do arquivo de entrada na
+ * graph_parser: Guarda as informacoes do arquivo de entrada na
  * estrutura graph. 
  * Retorna 0 em caso de sucesso e 1 caso contrario.
  */
-int parser(const char *filename, struct graph *G);
+int graph_parser(const char *filename, struct graph *G);
+
+/*
+ * subgrad_parser: Parser para o arquivo contendo os parametros do 
+ * metodo de subgradiente.  
+ * Retorna 0 em caso de sucesso e 1 caso contrario.
+ */
+int subgrad_parser(const char *filename, struct subgrad_param *subpar);
 
 /*
  * free_graph: Libera a memoria usada pela estrutura graph.
@@ -39,6 +53,12 @@ void free_graph(struct graph G);
  * graph lida.
  */
 void print_graph(struct graph G);
+
+/* 
+ * print_subgrad_param: imprime os parametros do metodo do 
+ * subgradiente
+ */
+void print_subgrad_param(struct subgrad_param subpar);
 
 #endif
 /* ! HAVE_PARSER_H */

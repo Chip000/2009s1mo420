@@ -7,11 +7,11 @@
 #include "../include/parser.h"
 
 /*
- * parser: Guarda as informacoes do arquivo de entrada na
+ * graph_parser: Guarda as informacoes do arquivo de entrada na
  * estrutura graph. 
  * Retorna 0 em caso de sucesso e 1 caso contrario.
  */
-int parser(const char *filename, struct graph *G)
+int graph_parser(const char *filename, struct graph *G)
 {
 
 	int i = 0;
@@ -71,8 +71,29 @@ int parser(const char *filename, struct graph *G)
 
 	return 0;
 
-} /* parser */
+} /* graph_parser */
 
+/*
+ * subgrad_parser: Parser para o arquivo contendo os parametros do 
+ * metodo de subgradiente.  
+ * Retorna 0 em caso de sucesso e 1 caso contrario.
+ */
+int subgrad_parser(const char *filename, struct subgrad_param *subpar)
+{
+	FILE *f;
+
+	if ((f = fopen(filename, "r")) == NULL) {
+		return 1;
+	}
+	
+	fscanf(f, "e = %f\n", &(subpar->e));
+	fscanf(f, "max_iter = %d\n", &(subpar->max_iter));
+	fscanf(f, "max_iter_no_improv = %d\n", 
+	       &(subpar->max_iter_no_improv));
+
+	return 0;
+
+} /* subgrad_parser */
 
 /*
  * free_graph: Libera a memoria usada pela estrutura graph.
@@ -129,5 +150,23 @@ void print_graph(struct graph G)
 	return;
 
 } /* print_graph */
+
+/* 
+ * print_subgrad_param: imprime os parametros do metodo do 
+ * subgradiente
+ */
+void print_subgrad_param(struct subgrad_param subpar)
+{
+	fprintf(stdout, "\n>>>DEBUG: \n");
+
+	fprintf(stdout, "E:%f\n", subpar.e);
+	fprintf(stdout, "MAX_ITER:%d\n", subpar.max_iter);
+	fprintf(stdout, "MAX_ITER_NO_IMPROV:%d\n", subpar.max_iter_no_improv);
+	
+	fprintf(stdout, "\n");
+
+	return;
+
+} /* print_subgrad_param */
 
 /* EOF */

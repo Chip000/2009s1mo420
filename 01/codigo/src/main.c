@@ -10,7 +10,7 @@
 #include <libgen.h>
 #include "../include/mytime.h"
 #include "../include/parser.h"
-#include "../include/subgrad.h"
+#include "../include/lagrel.h"
 
 #define DEBUG 1
 #define TARGET "relaxlag"
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
 	gettimeofday (&ini, NULL);
 
 	/* Carregando a entrada na memoria */
-	if (parser(filename, &G) != 0) {
+	if (graph_parser(filename, &G) != 0) {
 		fprintf(stderr, ">>>ERROR: ");
 		fprintf(stderr, "Arquivo de entrada invalido!!\n");
 		return 1;
