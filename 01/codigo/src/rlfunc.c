@@ -90,33 +90,26 @@ static float knapsack_dp(struct edge *E, int m, float W, float ***M)
 	for (i = 0; i < m + 1; i++) {
 		(*M)[i][0] = 0;
 	}
-	
+
 	for (i = 1; i < m + 1; i++) {
 		for (j = 1; j < W + 1; j++) {
-			ind = (int) (j - E[i].cost);
-			tmp = ((-1) * E[i].dist) + (*M)[i][ind];
-			
-			if ((E[i].cost <= j) && (tmp < (*M)[i][j])) {
-				(*M)[i][j] = tmp;
+			if (E[i-1].cost <= j) {
+				ind = (int) (j - E[i-1].cost);
+				tmp = ((-1) * E[i-1].dist) + (*M)[i-1][ind];
+				
+				if (tmp > (*M)[i][j]) {
+					(*M)[i][j] = tmp;
+				}
+				else {
+					(*M)[i][j] = (*M)[i-1][j];
+				}
 			}
 			else {
 				(*M)[i][j] = (*M)[i-1][j];
 			}
 		}
 	}
-
-	/******PROBLEMA COM O PREENCHIMENTO DA MATRIZ M*******/
-	fprintf(stderr, ">>>DEBUG: MATRIZ x\n");
-	for (i = 0; i < m + 1; i++) {
-		for (j= 0; j < W + 1; j++) {
-			fprintf(stderr, "%f ", (*M)[i][j]);
-		}
-		fprintf(stderr, "\n");
-	}
-
-
-	fprintf(stderr,">>Sack: %f",(*M)[m][(int) W]); 
-
+	
 	return ((*M)[m][(int) W]);
 
 } /* knapsack_dp */
@@ -145,7 +138,7 @@ static void knapsack_sol_aux(struct edge *E, float **M, int m, int W,
 		else {
 			(*x)[E[m-1].u][E[m-1].v] = 1;
 			(*x)[E[m-1].v][E[m-1].u] = 1;
-			knapsack_sol_aux(E, M, m - 1, W - E[m].cost, x);			
+			knapsack_sol_aux(E, M, m - 1, W - E[m-1].cost, x);
 		}
 	}
 
@@ -217,7 +210,7 @@ float knapsack(struct edge *E, int m, int n, float W, int ***x)
 	/* Inicializacao da Matriz */
 	for (i = 0; i < m + 1; i++) {
 		for (j= 0; j < W + 1; j++) {
-			M[i][j] = 0;
+			M[i][j] = -INF;
 		}
 	}
 
@@ -238,7 +231,7 @@ float knapsack(struct edge *E, int m, int n, float W, int ***x)
 	}
 	free(M);
 
-	return (-1)* cost;
+	return (-1) * cost;
 	
 } /* knapsack */
 
@@ -276,12 +269,6 @@ float shortest_path(float **G, int n, int s, int t, int ***x)
 	dist = init_float_array(n, INF);
 	prev = init_int_array(n, -1);
 	visited = init_int_array(n, 0);
-
-	(*x) = (int **) malloc(n * sizeof(int *));
-
-	for (i = 0; i < n; i++) {
-		(*x)[i] = (int *) malloc(n * sizeof(int));
-	}
 
 	for (i = 0; i < n; i++) {
 		for (j = 0; j < n; j++) {
@@ -330,6 +317,7 @@ float shortest_path(float **G, int n, int s, int t, int ***x)
 	/* Liberando memoria */
 	free(dist);
 	free(prev);
+	free(visited);
 
 	return cost;
 

@@ -27,14 +27,15 @@ static void copy_matrix(int ***dest, int **src, int n)
 /*
  * new_cost: Calcula o custos das arestas para a solucao primal.
  */
-static void new_cost(float ***c, float **a, float **b, int n)
+static void new_cost(float ***c, float **a, float **b, int n, float w)
 {
 	int i;
 	int j;
 
 	for (i = 0; i < n; i++) {
 		for (j = 0; j < n; j++) {
-			(*c)[i][j] = a[i][j] + b[i][j];
+			(*c)[i][j] = ((1 - w) * a[i][j]) + 
+				(w * b[i][j]);
 		}
 	}
 
@@ -149,13 +150,6 @@ static void update_lag_cost_rl1(struct graph *G, float *u,
 		}
 	}
 
-	/* Vertice j != de s e t (sum(xij) = 2)  */
-/* 	for (j = 0; j < G->v; j++) { */
-/* 		for (i = 0; i < G->v; i++) { */
-/* 			lag_cost[j][i] = (G->dist)[j][i] + u[j]; */
-/* 		} */
-/* 	} */
-	
 	/* Vertice s */
 	for (i = 0; i < G->v; i++) {
 		if ((G->dist)[s][i] != 0) {
@@ -222,10 +216,11 @@ static void update_lag_cost_rl2(struct graph *G, float u, float ***c)
  * Entrada:
  *   - Informacoes sobre o grafo de entrada
  *   - Conjunto solucao a ser analisado
+ *   - Relaxacao escolhida
  * Saida:
  *   - Retorna 1 caso seja viavel e 0 cc
  */
-static int is_feasible(struct graph *G, int **x)
+static int is_feasible(struct graph *G, int **x, int rel)
 {
 	int i;
 	int j;
@@ -235,34 +230,37 @@ static int is_feasible(struct graph *G, int **x)
 
 	float cost;
 
-	/* Verifica se forma um caminho */
-	u = 0;
-	t = G->v - 1;
-	i = 0;
-	while ((u != t) && (i < G->v)) {
-		if (x[u][i] != 0) {
-			tmp = u;
-			u = i;
-			i = tmp;
+	/* Verifica se forma um caminho RL1 */
+	if (rel == 1) {
+		u = 0;
+		t = G->v - 1;
+		i = 0;
+		while ((u != t) && (i < G->v)) {
+			if (x[u][i] != 0) {
+				tmp = u;
+				u = i;
+				i = tmp;
+			}
+			i++;
 		}
-		i++;
-	}
-
-	if (u != t) {
-		return 0;
-	}
-
-	/* calculando o custo da solucao */
-	cost = 0;
-	for (i = 0; i < G->v; i++) {
-		for (j = i; j < G->v; j++) {
-			cost = cost + ((G->cost)[i][j] * x[i][j]);
+		
+		if (u != t) {
+			return 0;
 		}
 	}
-
-	/* verificando se a restricao e satisfeita */
-	if (cost > G->max_cost) {
-		return 0;
+	else if (rel == 2) {
+		/* calculando o custo da solucao */
+		cost = 0;
+		for (i = 0; i < G->v; i++) {
+			for (j = i; j < G->v; j++) {
+				cost = cost + ((G->cost)[i][j] * x[i][j]);
+			}
+		}
+		
+		/* verificando se a restricao e satisfeita */
+		if (cost > G->max_cost) {
+			return 0;
+		}
 	}
 
 	return 1;
@@ -275,10 +273,11 @@ static int is_feasible(struct graph *G, int **x)
  * Entrada:
  *   - Informacoes sobre o grafo de entrada
  *   - Conjunto solucao a ser analisado
+ *   - Multiplicadores de Lagrange
  * Saida:
  *   - Retorna 1 caso seja otima e 0 cc
  */
-static int is_optimal_rl1(struct graph *G, int **sol)
+static int is_optimal_rl1(struct graph *G, int **sol, float *l)
 {
 	int i;
 	int u;
@@ -312,10 +311,11 @@ static int is_optimal_rl1(struct graph *G, int **sol)
  * Entrada:
  *   - Informacoes sobre o grafo de entrada
  *   - Conjunto solucao a ser analisado
+ *   - Multiplicador de Lagrange
  * Saida:
  *   - Retorna 1 caso seja otima e 0 cc
  */
-static int is_optimal_rl2(struct graph *G, int **x)
+static int is_optimal_rl2(struct graph *G, int **x, float u)
 {
 	int i;
 	int j;
@@ -324,17 +324,30 @@ static int is_optimal_rl2(struct graph *G, int **x)
 
 	/* Verifica se a retricao da mochila e valida
 	   na igualdade */
-	c = G->max_cost;
+	c = G->max_cost - calc_cost(G, x);
+
+	fprintf(stderr, ">>>maxc %d cost %f maxc - cost %f\n", G->max_cost, calc_cost(G,x), c);
+
+	/* sum(cx) > C */
+	if (c < 0) {
+		return 0;
+	}
+
+	c = 0;
 	for (i = 0; i < G->v; i++) {
 		for (j = 0; j < G->v; j++) {
-			c = c - ((G->cost)[i][j] * x[i][j]);
+			c = c + ((G->cost)[i][j] * x[i][j]);
 		}
 	}
 	
-	/* Se nao e valida na igualdade a solucao nao e otima
-	   para o PCMCRC */
-	if (c != 0) {
-		return 0;
+	if (u > 0) {
+		/* Se nao e valida na igualdade a solucao nao e otima
+		  para o PCMCRC */
+		fprintf(stderr, ">>>maxc %d c %f\n", G->max_cost, c);
+
+		if (c != G->max_cost) {
+			return 0;
+		}
 	}
 
 	return 1;
@@ -356,6 +369,8 @@ static float primal_bound(struct graph *G, int ***x)
 	float **C;
 
 	int i;
+
+	float w;
 	
 	/* Calculando os custos das arestas */
 	C = (float **) malloc(G->v * sizeof(float *));
@@ -363,16 +378,28 @@ static float primal_bound(struct graph *G, int ***x)
 		C[i] = (float *) malloc(G->v * sizeof(float));
 	}
 	
-	new_cost(&C, G->cost, G->dist, G->v);
+	w = 1;
+	cost = INF;
 
-	/* Encontra o menor caminho usando o custo + distancia
-	   como distancia fazendo com que a restricao de custo 
-	   (mochila) seja satisfeita. */
-	cost = shortest_path(C, G->v, 0, G->v - 1, x);
+	while ((w > 0) && (cost > G->max_cost)) {
+		new_cost(&C, G->cost, G->dist, G->v, w);
+
+		/* Encontra o menor caminho usando o (1-w)*custo + 
+		   w*distancia como distancia fazendo com que a 
+		   restricao de custo (mochila) seja satisfeita. */
+		cost = shortest_path(C, G->v, 0, G->v - 1, x);
 	
-	/* Calculando o custo da solucao encontrada */
-	cost = calc_cost(G, (*x));
+		/* Calculando o custo da solucao encontrada */
+		cost = calc_cost(G, (*x));
+		
+		if (cost <= G->max_cost) {
+			break;
+		}
 
+		w = w - W_STEP;
+
+	}
+	
 	if (cost > G->max_cost) {
 		fprintf(stderr, ">>>ERROR: primal_bound");
 		fprintf(stderr, "restricao de custo nao satisfeita.");
@@ -380,6 +407,7 @@ static float primal_bound(struct graph *G, int ***x)
 		fprintf(stderr, ">>> (%f > %d) \n", cost, G->max_cost);
 		return -1;
 	}
+
 
 	/* Liberando memoria */
 	for (i = 0; i < G->v; i++) {
@@ -414,10 +442,11 @@ void lag_heuristic(struct subgrad_param *subpar,
 	float lb_tmp;
 	float t;
 	float sol;
+	float sol_f;
 	float cost;
 	float cost_aux;
 	float *c;
-	float *u;
+        float *u;
 
 	float **lag_cost;
 
@@ -511,33 +540,21 @@ void lag_heuristic(struct subgrad_param *subpar,
 			/* custo - u[s] - u[t] */
 			lb_tmp = lb_tmp - u[0] - u[G->v - 1];
 
-			/* sum(xij) = 2 */
-/* 			cost_aux = 0; */
-/* 			for (i = 1; i < G->v - 1; i++) { */
-/* 				cost_aux = cost_aux + 2 * u[i]; */
-/* 			} */
-/* 			lb_tmp = lb_tmp - cost_aux; */
-
-			fprintf(stderr, "%d lb_tmp: %f\n", k, lb_tmp);
-
-			for (i = 0; i < G->v; i++) {
-				for (j = 0; j < G->v; j++) {
-					fprintf(stderr, "%d ", x[i][j]);
-				}
-				fprintf(stderr,"\n");
-			}
+			fprintf(stderr, "%d lb_tmp: %f cost: %f\n", k, lb_tmp, calc_cost(G, x));
 
 			/* Verifica se a solucao encontrada e viavel 
 			   para o PCMCRC */
-			if (is_feasible(G, x) != 0) {
-				if (lb_tmp > ub) {
+			if (is_feasible(G, x, rel) != 0) {
+				sol_f = calc_solution(G, x);
+
+				if (sol_f < ub) {
 					copy_matrix(&x_sol, x, G->v);
-					ub = calc_solution(G, x_sol);
+					ub = sol_f;
 				}
 
 				/* Verificando se a solucao e otima
 				   para o PCMCRC */
-				if (is_optimal_rl1(G, x) != 0) {
+				if (is_optimal_rl1(G, x, u) != 0) {
 					sol = calc_solution(G, x);
 					cost = calc_cost(G, x);
 					break;
@@ -566,14 +583,6 @@ void lag_heuristic(struct subgrad_param *subpar,
 			}
 
 			cost_aux = 0;
-			/* Vertices j != s e t */
-/* 			for (j = 1; j < G->v - 1; j++) { */
-/* 				c[j] = 2; */
-/* 				for (i = 0; i < G->v; i++) { */
-/* 					c[j] = c[j] - x[j][i]; */
-/* 				} */
-/* 				cost_aux = cost_aux + (c[j] * c[j]); */
-/* 			} */
 			
 			/* Vertice s */
 			c[0] = 1;
@@ -589,11 +598,11 @@ void lag_heuristic(struct subgrad_param *subpar,
 			}
 			cost_aux = cost_aux + (c[G->v-1] * c[G->v-1]); 
 
-			/******VERIFICAR AQUI A ATUALIZACAO DOS MULTIPLICADORES**********/
-
 			t = subpar->e * (lb_tmp - ub) / cost_aux;
 			for (j = 0; j < G->v; j++) {
-				u[j] = u[j] - t * c[j];
+				/* Restricoes dualizadas sao 
+				   irrestritas em sinal */
+				u[j] = u[j] + t * c[j];
 			}
 
 			k++;
@@ -649,15 +658,17 @@ void lag_heuristic(struct subgrad_param *subpar,
 
 			/* Verifica se a solucao encontrada e viavel 
 			   para o PCMCRC */
-			if (is_feasible(G, x) != 0) {
-				if (lb_tmp > ub) {
+			if (is_feasible(G, x, rel) != 0) {
+				sol_f = calc_solution(G, x);
+				
+				if (sol_f < ub) {
 					copy_matrix(&x_sol, x, G->v);
-					ub = calc_solution(G, x_sol);
+					ub = sol_f;
 				}
 
 				/* Verificando se a solucao e otima
 				   para o PCMCRC */
-				if (is_optimal_rl2(G, x) != 0) {
+				if (is_optimal_rl2(G, x, u[0]) != 0) {
 					copy_matrix(&x_sol, x, G->v);
 					sol = calc_solution(G, x_sol);
 					cost = calc_cost(G, x_sol);

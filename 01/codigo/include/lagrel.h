@@ -17,6 +17,8 @@
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
+#define W_STEP 0.01
+
 /*
  * lag_heuristic: Heuristica lagrangeana que calcula os valores dos 
  * limitantes usando o metodo do subgradiente, encontrando a solucao

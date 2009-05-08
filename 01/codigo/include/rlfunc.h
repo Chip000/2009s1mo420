@@ -11,9 +11,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <float.h>
 #include "../include/edgefunc.h"
 
-#define INF 999999999
+#define INF FLT_MAX
 
 /* RL1 */
 /*

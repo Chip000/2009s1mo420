@@ -91,6 +91,8 @@ int subgrad_parser(const char *filename, struct subgrad_param *subpar)
 	fscanf(f, "max_iter_no_improv = %d\n", 
 	       &(subpar->max_iter_no_improv));
 
+	fclose(f);
+
 	return 0;
 
 } /* subgrad_parser */
