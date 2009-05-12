@@ -27,13 +27,13 @@
  *   - Parametros para o metodo do subgradiente
  *   - Informacoes sobre o grafo de entrada
  *   - Relaxacao a ser feita
- *   - Nome do arquivo de saida que tera os valores dos limitantes
+ *   - Ponteiro para o arquivo de saida que tera os valores dos limitantes
  *     a cada iteracao
  */
 void lag_heuristic(struct subgrad_param *subpar, 
 		   struct graph *G, 
 		   int rel,
-		   const char *filename);
+		   FILE *f_out);
 
 #endif
 /* ! HAVE_LAGREL_H */

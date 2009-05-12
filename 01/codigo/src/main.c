@@ -12,11 +12,11 @@
 #include "../include/parser.h"
 #include "../include/lagrel.h"
 
-#define DEBUG 1
+#define DEBUG 0
 #define TARGET "relaxlag"
 #define DEFAULT_SUBGRAD_PARAM_FILE "param"
-#define GNUPLOT_DIR "./gnuplot/"
-#define GNUPLOT_EXT ".gnuplot"
+#define GNUPLOT_DIR "./output/"
+#define GNUPLOT_EXT ".out"
 
 void display_help(void)
 {
@@ -46,6 +46,8 @@ int main(int argc, char **argv) {
 	char *filename;
 	char *subgrad_param_file;
 	char *gnuplot_file;
+
+	FILE *f_out;
 
 	if (argc < 3) {
 		fprintf(stderr, ">>>ERROR: ");
@@ -96,16 +98,31 @@ int main(int argc, char **argv) {
 		print_subgrad_param(subpar);
 	}
 
-	gnuplot_file = (char *) malloc((strlen(GNUPLOT_DIR)
-					+ strlen(basename(filename)) +
-					+ strlen(basename(subgrad_param_file))
+	gnuplot_file = (char *) malloc((strlen(GNUPLOT_DIR) +
+					strlen(basename(filename)) +
+					strlen(basename(subgrad_param_file))
 					+ strlen(GNUPLOT_EXT)
 					+ 4) * sizeof(char));
 
-	sprintf(gnuplot_file, "%s%s.%d.%s%s", GNUPLOT_DIR, basename(filename),
-		relax, basename(subgrad_param_file), GNUPLOT_EXT);
+	sprintf(gnuplot_file, "%s%s.%d.%s%s", GNUPLOT_DIR, 
+		basename(filename), relax, basename(subgrad_param_file), 
+		GNUPLOT_EXT);
 
-	lag_heuristic(&subpar, &G, relax, gnuplot_file);  
+	if ((f_out = fopen(gnuplot_file, "wb")) == NULL) {
+		fprintf(stderr, ">>>ERROR: ");
+		fprintf(stderr, "Arquivo de saida invalido!!\n");
+		return 1;
+	} 
+
+	fprintf(stdout, "# Instancia: %s\n", basename(filename));
+	fprintf(stdout, "# Parametro: %s\n", basename(subgrad_param_file));
+	fprintf(stdout, "# Relaxacao: %d\n", relax);
+
+	fprintf(f_out, "# Instancia: %s\n", basename(filename));
+	fprintf(f_out, "# Parametro: %s\n", basename(subgrad_param_file));
+	fprintf(f_out, "# Relaxacao: %d\n", relax);
+
+	lag_heuristic(&subpar, &G, relax, f_out);  
 
 	free(gnuplot_file);
 
@@ -117,8 +134,12 @@ int main(int argc, char **argv) {
 
 	/* apresentando tempo total */
 	timeval_subtract (&res, &fin, &ini);
-	fprintf(stdout, "tempo total: %ld seg e %ld microseg\n", 
+	fprintf(stdout, "# tempo total: %ld seg e %ld microseg\n", 
 			(time_t)res.tv_sec, (suseconds_t)res.tv_usec);
+	fprintf(f_out, "# tempo total: %ld seg e %ld microseg\n", 
+			(time_t)res.tv_sec, (suseconds_t)res.tv_usec);
+
+	fclose(f_out);
 
 	return 0;
 

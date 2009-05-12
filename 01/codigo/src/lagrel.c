@@ -46,18 +46,18 @@ static void new_cost(float ***c, float **a, float **b, int n, float w)
 /* 
  * print_solution: imprime os vertices do caminho de s a t
  */
-static void print_solution(int **sol, int n, int s, int t)
+static void print_solution(int **sol, int n, int s, int t, FILE *f)
 {
 	int i;
 	int u;
 	int tmp;
 	
-	fprintf(stdout, "Caminho: %d ", s);
+	fprintf(f, "# Caminho: %d ", s);
 	u = s;
 	i = 0;
 	while ((u != t) && (i < n)) {
 		if (sol[u][i] != 0) {
-			fprintf(stdout, "%d ", i);
+			fprintf(f, "%d ", i);
 			tmp = u;
 			u = i;
 			i = tmp;
@@ -65,7 +65,7 @@ static void print_solution(int **sol, int n, int s, int t)
 		i++;
 	}
  
-	fprintf(stdout, "\n");
+	fprintf(f, "\n");
 	return;
 
 } /* print_solution */
@@ -326,8 +326,6 @@ static int is_optimal_rl2(struct graph *G, int **x, float u)
 	   na igualdade */
 	c = G->max_cost - calc_cost(G, x);
 
-	fprintf(stderr, ">>>maxc %d cost %f maxc - cost %f\n", G->max_cost, calc_cost(G,x), c);
-
 	/* sum(cx) > C */
 	if (c < 0) {
 		return 0;
@@ -343,8 +341,6 @@ static int is_optimal_rl2(struct graph *G, int **x, float u)
 	if (u > 0) {
 		/* Se nao e valida na igualdade a solucao nao e otima
 		  para o PCMCRC */
-		fprintf(stderr, ">>>maxc %d c %f\n", G->max_cost, c);
-
 		if (c != G->max_cost) {
 			return 0;
 		}
@@ -428,13 +424,13 @@ static float primal_bound(struct graph *G, int ***x)
  *   - Parametros para o metodo do subgradiente
  *   - Informacoes sobre o grafo de entrada
  *   - Relaxacao a ser feita
- *   - Nome do arquivo de saida que tera os valores dos limitantes
+ *   - Ponteiro para o arquivo de saida que tera os valores dos limitantes
  *     a cada iteracao
  */
 void lag_heuristic(struct subgrad_param *subpar, 
 		   struct graph *G, 
 		   int rel,
-		   const char *filename)
+		   FILE *f_out)
 {
 	float ub;
 	float lb;
@@ -467,15 +463,7 @@ void lag_heuristic(struct subgrad_param *subpar,
 	struct timeval resub;
 	struct timeval reslb;
 
-	FILE *f_out;
-
 	/* Inicializacao */
-	if ((f_out = fopen(filename, "wb")) == NULL) {
-		fprintf(stderr, ">>>ERROR: ");
-		fprintf(stderr, "Arquivo de saida invalido!!\n");
-		return;
-	} 
-	
 	x_sol = (int **) malloc(G->v * sizeof(int *));
 	for (i = 0; i < G->v; i++) {
 		x_sol[i] = (int *) malloc(G->v * sizeof(int)); 
@@ -508,9 +496,13 @@ void lag_heuristic(struct subgrad_param *subpar,
 	ub_tmp = primal_bound(G, &x_sol);
 
 	ub = MIN(ub, ub_tmp);
+
 	gettimeofday(&fub, NULL);
 
 	gettimeofday(&ilb, NULL);
+
+	fprintf(f_out, "#\tIteracoes\tLim. Inf.\tLim. Sup.\n");
+	fprintf(stdout, "#\tIteracoes\tLim. Inf.\tLim. Sup.\n");
 
 	switch(rel) {
 	case 1: /* Problema da Mochila: Restricoes do PCMC 
@@ -540,8 +532,6 @@ void lag_heuristic(struct subgrad_param *subpar,
 			/* custo - u[s] - u[t] */
 			lb_tmp = lb_tmp - u[0] - u[G->v - 1];
 
-			fprintf(stderr, "%d lb_tmp: %f cost: %f\n", k, lb_tmp, calc_cost(G, x));
-
 			/* Verifica se a solucao encontrada e viavel 
 			   para o PCMCRC */
 			if (is_feasible(G, x, rel) != 0) {
@@ -567,6 +557,7 @@ void lag_heuristic(struct subgrad_param *subpar,
 			}
 						
 			fprintf(f_out, "\t%d\t%f\t%f\n", k, lb, ub);
+			fprintf(stdout, "\t%d\t%f\t%f\n", k, lb, ub);
 
 			/* Criterio de parada */
 			if (ub - lb < 1) {
@@ -682,6 +673,7 @@ void lag_heuristic(struct subgrad_param *subpar,
 			}
 						
 			fprintf(f_out, "\t%d\t%f\t%f\n", k, lb, ub);
+			fprintf(stdout, "\t%d\t%f\t%f\n", k, lb, ub);
 
 			/* Criterio de parada */
 			if (ub - lb < 1) {
@@ -737,22 +729,33 @@ void lag_heuristic(struct subgrad_param *subpar,
 
 	gettimeofday(&flb, NULL);
 
-	fclose(f_out);
-
 	timeval_subtract(&resub, &fub, &iub);
 	timeval_subtract(&reslb, &flb, &ilb);
 
-	fprintf(stdout, "Numero de iteracoes: %d \n", k + 1);
-	fprintf(stdout, "tempo: %ld seg e %ld microseg",
+	fprintf(stdout, "# Numero de iteracoes: %d \n", k + 1);
+	fprintf(stdout, "# tempo: %ld seg e %ld microseg",
 		(time_t)resub.tv_sec, (suseconds_t)resub.tv_usec);
-	fprintf(stdout, " - limitante superior: %f\n", ub);
-	fprintf(stdout, "tempo: %ld seg e %ld microseg",
+	fprintf(stdout, "#  - limitante superior: %f\n", ub);
+	fprintf(stdout, "# tempo: %ld seg e %ld microseg",
 		(time_t)reslb.tv_sec, (suseconds_t)reslb.tv_usec);
-	fprintf(stdout, " - limitante inferior: %f\n", lb);
+	fprintf(stdout, "#  - limitante inferior: %f\n", lb);
 
-	fprintf(stdout, "Distancia do Caminho: %f\n", sol);
-	fprintf(stdout, "Custo do Caminho: %f\n", cost);
-	print_solution(x_sol, G->v, 0, G->v -1);
+	fprintf(stdout, "# Distancia do Caminho: %f\n", sol);
+	fprintf(stdout, "# Custo do Caminho: %f\n", cost);
+	print_solution(x_sol, G->v, 0, G->v -1, stdout);
+
+	fprintf(f_out, "# Numero de iteracoes: %d \n", k + 1);
+	fprintf(f_out, "# tempo: %ld seg e %ld microseg",
+		(time_t)resub.tv_sec, (suseconds_t)resub.tv_usec);
+	fprintf(f_out, "#  - limitante superior: %f\n", ub);
+	fprintf(f_out, "# tempo: %ld seg e %ld microseg",
+		(time_t)reslb.tv_sec, (suseconds_t)reslb.tv_usec);
+	fprintf(f_out, "#  - limitante inferior: %f\n", lb);
+
+	fprintf(f_out, "# Distancia do Caminho: %f\n", sol);
+	fprintf(f_out, "# Custo do Caminho: %f\n", cost);
+	print_solution(x_sol, G->v, 0, G->v -1, f_out);
+
 
 	/* Liberando memoria */
  	for (i = 0; i < G->v; i++) {

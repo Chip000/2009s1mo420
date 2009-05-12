@@ -53,6 +53,10 @@ static int min_dist_vertex(float *dist, int n, int *visited)
 	min_dist = INF;
 	min_vertex = -1;
 
+/* 	for (i = 0; i < n; i++) { */
+/* 		fprintf(stderr, "%f ", dist[i]); */
+/* 	} */
+
 	for (i = 0; i < n; i++) {
 		if ((visited[i] == 0) && (dist[i] <= min_dist)) {
 			min_dist = dist[i];
@@ -282,6 +286,8 @@ float shortest_path(float **G, int n, int s, int t, int ***x)
 	dist[s] = 0;
 	prev[s] = -1;
 
+/* 	fprintf(stderr, "\n\n"); */
+
 	while (S != 0) {
 		/* Escolhe o elemento de menor distancia */
 		u = min_dist_vertex(dist, n, visited);
@@ -291,6 +297,7 @@ float shortest_path(float **G, int n, int s, int t, int ***x)
 		/* Percorre os vizinhos de u */
 		for (i = 0; i < n; i++) {
 			if (G[u][i] != 0) {
+			/* 	fprintf(stderr, "dist[%d] = %f G[%d][%d] = %f\n", u, dist[u],u,i, G[u][i]); */
 				tmp = dist[u] + G[u][i];
 				
 				/* Relaxa a aresta (u, i) */
@@ -301,6 +308,23 @@ float shortest_path(float **G, int n, int s, int t, int ***x)
 			}
 		}
 	}
+
+/* 	fprintf(stderr,"prev :"); */
+/* 	for (i = 0; i < n; i++) { */
+/* 		fprintf(stderr, "%d ", prev[i]); */
+/* 	} */
+
+/* 	fprintf(stderr,"\ndist: "); */
+
+/* 	for (i = 0; i < n; i++) { */
+/* 		fprintf(stderr, "%f ", dist[i]); */
+/* 	} */
+
+/* 	fprintf(stderr,"\nvisited: "); */
+
+/* 	for (i = 0; i < n; i++) { */
+/* 		fprintf(stderr, "%d ", visited[i]); */
+/* 	} */
 
 	/* Encontrando o caminho de s para t 
 	   (Conjunto solucao) */
