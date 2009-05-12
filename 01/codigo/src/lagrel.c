@@ -735,10 +735,10 @@ void lag_heuristic(struct subgrad_param *subpar,
 	fprintf(stdout, "# Numero de iteracoes: %d \n", k + 1);
 	fprintf(stdout, "# tempo: %ld seg e %ld microseg",
 		(time_t)resub.tv_sec, (suseconds_t)resub.tv_usec);
-	fprintf(stdout, "#  - limitante superior: %f\n", ub);
+	fprintf(stdout, " - limitante superior: %f\n", ub);
 	fprintf(stdout, "# tempo: %ld seg e %ld microseg",
 		(time_t)reslb.tv_sec, (suseconds_t)reslb.tv_usec);
-	fprintf(stdout, "#  - limitante inferior: %f\n", lb);
+	fprintf(stdout, " - limitante inferior: %f\n", lb);
 
 	fprintf(stdout, "# Distancia do Caminho: %f\n", sol);
 	fprintf(stdout, "# Custo do Caminho: %f\n", cost);
@@ -747,10 +747,10 @@ void lag_heuristic(struct subgrad_param *subpar,
 	fprintf(f_out, "# Numero de iteracoes: %d \n", k + 1);
 	fprintf(f_out, "# tempo: %ld seg e %ld microseg",
 		(time_t)resub.tv_sec, (suseconds_t)resub.tv_usec);
-	fprintf(f_out, "#  - limitante superior: %f\n", ub);
+	fprintf(f_out, " - limitante superior: %f\n", ub);
 	fprintf(f_out, "# tempo: %ld seg e %ld microseg",
 		(time_t)reslb.tv_sec, (suseconds_t)reslb.tv_usec);
-	fprintf(f_out, "#  - limitante inferior: %f\n", lb);
+	fprintf(f_out, " - limitante inferior: %f\n", lb);
 
 	fprintf(f_out, "# Distancia do Caminho: %f\n", sol);
 	fprintf(f_out, "# Custo do Caminho: %f\n", cost);

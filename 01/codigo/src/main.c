@@ -117,10 +117,23 @@ int main(int argc, char **argv) {
 	fprintf(stdout, "# Instancia: %s\n", basename(filename));
 	fprintf(stdout, "# Parametro: %s\n", basename(subgrad_param_file));
 	fprintf(stdout, "# Relaxacao: %d\n", relax);
+	fprintf(stdout, "# N. Vert: %d\n", G.v);
+	fprintf(stdout, "# N. Arest: %d\n", G.e);
+	fprintf(stdout, "# Custo Max: %d\n", G.max_cost);
+	fprintf(stdout, "# E:%f\n", subpar.e);
+	fprintf(stdout, "# Quantidade Maxima de iteracoes: %d\n", subpar.max_iter);
+	fprintf(stdout, "# Quantidade Maxima de iteracoes sem melhoria no limitante: %d\n", subpar.max_iter_no_improv);
 
 	fprintf(f_out, "# Instancia: %s\n", basename(filename));
 	fprintf(f_out, "# Parametro: %s\n", basename(subgrad_param_file));
 	fprintf(f_out, "# Relaxacao: %d\n", relax);
+	fprintf(f_out, "# N. Vert: %d\n", G.v);
+	fprintf(f_out, "# N. Arest: %d\n", G.e);
+	fprintf(f_out, "# Custo Max: %d\n", G.max_cost);
+	fprintf(f_out, "# E:%f\n", subpar.e);
+	fprintf(f_out, "# Quantidade Maxima de iteracoes: %d\n", subpar.max_iter);
+	fprintf(f_out, "# Quantidade Maxima de iteracoes sem melhoria no limitante: %d\n", subpar.max_iter_no_improv);
+
 
 	lag_heuristic(&subpar, &G, relax, f_out);  
 
