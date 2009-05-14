@@ -50,17 +50,18 @@ static void print_solution(int **sol, int n, int s, int t, FILE *f)
 {
 	int i;
 	int u;
-	int tmp;
+	int prev;
 	
 	fprintf(f, "# Caminho: %d ", s);
 	u = s;
 	i = 0;
+	prev = -1;
 	while ((u != t) && (i < n)) {
-		if (sol[u][i] != 0) {
+		if ((sol[u][i] != 0) && (i != prev)) {
 			fprintf(f, "%d ", i);
-			tmp = u;
+			prev = u;
 			u = i;
-			i = tmp;
+			i = -1;
 		}
 		i++;
 	}
@@ -395,7 +396,7 @@ static float primal_bound(struct graph *G, int ***x)
 		w = w - W_STEP;
 
 	}
-	
+
 	if (cost > G->max_cost) {
 		fprintf(stderr, ">>>ERROR: primal_bound");
 		fprintf(stderr, "restricao de custo nao satisfeita.");
@@ -403,7 +404,6 @@ static float primal_bound(struct graph *G, int ***x)
 		fprintf(stderr, ">>> (%f > %d) \n", cost, G->max_cost);
 		return -1;
 	}
-
 
 	/* Liberando memoria */
 	for (i = 0; i < G->v; i++) {

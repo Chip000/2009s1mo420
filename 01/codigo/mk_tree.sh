@@ -9,7 +9,16 @@ OUT_DIR=$(grep "#define GNUPLOT_DIR" src/main.c | sed -ne 's/.*"\(.*\)".*/\1/p')
 
 echo ">>> Making dirs";
 
-mkdir $ODIR $OUTPUT;
+for i in {$OBJ_DIR,$OUT_DIR}
+do
+    if [[ -e $i ]]
+    then
+	echo ">> $i is ready :P";
+    else
+	echo ">> Creating $i";
+	mkdir $i;
+    fi
+done;
 
 echo ">>> End";
 

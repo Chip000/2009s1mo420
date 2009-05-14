@@ -310,7 +310,7 @@ float shortest_path(float **G, int n, int s, int t, int ***x)
 		(*x)[i][j] = (*x)[j][i] = 1;
 		i = j;
 	}
-	
+
 	/* Custo do caminho de s a t */
 	cost = dist[t];
 
