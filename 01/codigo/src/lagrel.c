@@ -333,7 +333,7 @@ static int is_optimal_rl2(struct graph *G, int **x, float u)
 
 	c = 0;
 	for (i = 0; i < G->v; i++) {
-		for (j = 0; j < G->v; j++) {
+		for (j = i; j < G->v; j++) {
 			c = c + ((G->cost)[i][j] * x[i][j]);
 		}
 	}
@@ -341,7 +341,7 @@ static int is_optimal_rl2(struct graph *G, int **x, float u)
 	if (u > 0) {
 		/* Se nao e valida na igualdade a solucao nao e otima
 		  para o PCMCRC */
-		if (c != G->max_cost) {
+		if (c > G->max_cost) {
 			return 0;
 		}
 	}
@@ -663,6 +663,22 @@ void lag_heuristic(struct subgrad_param *subpar,
 					copy_matrix(&x_sol, x, G->v);
 					sol = calc_solution(G, x_sol);
 					cost = calc_cost(G, x_sol);
+					fprintf(stdout, 
+						"# Solucao otima:\n");
+					fprintf(stdout, 
+						"# Dist: %f\n", sol);
+					fprintf(stdout, 
+						"# Custo: %f\n", cost);
+					print_solution(x_sol, G->v, 0, 
+						       G->v -1, stdout);
+					fprintf(f_out, 
+						"# Solucao otima:\n");
+					fprintf(f_out, 
+						"# Dist: %f\n", sol);
+					fprintf(f_out, 
+						"# Custo: %f\n", cost);
+					print_solution(x_sol, G->v, 0, 
+						       G->v -1, f_out);
 					break;
 				}
 			}
