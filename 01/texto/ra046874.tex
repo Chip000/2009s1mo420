@@ -1,0 +1,421 @@
+% Definindo o tipo de documento
+\documentclass[letterpaper]{article}
+
+\usepackage[latin1]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{indentfirst}
+\usepackage{fancyhdr}
+\usepackage[noprefix]{nomencl}
+\usepackage[letterpaper,
+            ps2pdf,
+            pdfborder={0 0 0},
+            colorlinks={false},
+            pdfpagemode={None},
+            pdftitle={},
+            pdfauthor={Victor de Abreu Iizuka et al},
+            pdfsubject={Relaxacao Lagrangeana},
+            pdfkeywords={Relaxacao Lagrangeana },
+            pdfview={FitBH}]{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage[dvips]{graphicx}
+\usepackage[algoruled,portugues,linesnumbered]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+\pagestyle{fancy}
+\addtolength{\headheight}{2pt}
+\fancyhead{}
+\fancyhead[L]{\large{\textsf{Victor de A. I.}}}
+\fancyhead[R]{\textsl{\leftmark}}
+\fancyfoot{}
+\fancyfoot[R]{\small{\textsl{pág. \thepage{} de \pageref{fimdoc}}}}
+\fancyfoot[C]{\small{\textsf{Relaxação Lagrangeana}}}
+\fancyfoot[L]{\small{\textsl{\today}}}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\newcommand{\aspas}[1]{``#1''}
+\newcommand{\estr}[1]{\textsl{\foreignlanguage{american}{#1}}}
+\newcommand{\thead}[1]{\textbf{#1}}
+\newcommand{\sigla}[1]{\texttt{#1}}
+\newcommand{\converter}[2]{\small\textsl{#1 $\pm{}$ #2}\normalsize}
+\newcommand{\pcmcrc}{Problema do Caminho mais Curto com Restrição de Custo}
+\newcommand{\spcmcrc}{PCMCRC}
+\newcommand{\mpcmcrc}{problema do caminho mais curto com restrição de custo}
+\newcommand{\cmcrc}{caminho mais curto com restrição de custo}
+\newcommand{\pcmc}{Problema do Caminho mais Curto}
+\newcommand{\mpcmc}{problema do caminho mais curto}
+\newcommand{\cmc}{caminho mais curto}
+\newcommand{\knap}{Mochila Binária}
+\newcommand{\mknap}{mochila binária}
+\newcommand{\rellag}{relaxação lagrangeana}
+\newcommand{\rl}[1]{\textit{RL#1}}
+
+
+% Título e autor
+\title{Relaxação Lagrangeana: \\ \pcmcrc}
+\author{Victor de Abreu Iizuka}
+
+% Começando o documento
+\begin{document}
+
+% Imprimindo o título
+\maketitle{}
+% Imprimindo o índice
+\tableofcontents{}
+\listoftables{}
+\listoffigures{}
+\listofalgorithms{}
+
+\thispagestyle{empty}
+\newpage{}
+
+\input{sections/intro}
+\input{sections/obj}
+\input{sections/model}
+\input{sections/relaxlag}
+
+%\section{Formulação do problema Lagrangeano}
+%\label{sec:form}
+%A formulação PLI do problema da \sigla{\agmr{}} é a mesma formulação da \mst{} acrescentando as retrições de grau:
+%
+%\begin{equation}
+%\label{eq:grau}
+%\sum_{i  \in{}  \textit{V}-\{i\}} x_{i} \leq{} d_{i}, \forall{} i \in \textit{V} 
+%\end{equation}
+%
+%A relaxação usada foi dualizar as restrições de grau de todos os vértices, desta forma só precisamos resolver o problema de achar a \mst{} para encontrar a solução do problema lagrangeano primal:
+%
+%\begin{equation}
+%\label{eq:sol}
+%z_{u} = \min{} c x -  u (d - D x)
+%\end{equation}
+%
+%Onde:
+%
+%\begin{itemize}
+%  \item{$ c $: Custos das arestas}
+%  \item{$ u $: Multiplicadores de Lagrange}
+%  \item{$ d - D x $: Restrições de grau dualizadas}
+%  \item{$ x $: Conjunto Solução}
+%\end{itemize}
+%
+%\newpage{}
+%
+%\section{Limitante Primal}
+%\label{sec:LimPri}
+%O Limitante Primal (Limitante Superior) é encontrado fazendo uma modificação no algoritmo de \textit{Kruskal}. Quando inserimos a aresta na solução, adicionamos mais duas verificações: 
+%
+%\begin{itemize}
+%  \item{Se os graus dos vértices não violam a restrição de grau;}
+%  \item{Se o solução não ficou \textit{saturada}.}
+%\end{itemize}
+%
+%Desta forma a solução do algoritmo é viável para o problema original.
+%
+%\section{Limitante Dual}
+%\label{sec:LimDual}
+%O Limitante Dual (Limitante Inferior) é calculado fazendo o método do subgradiente. Neste método calculamos os multiplicadores de lagrange a cada iteração, assim criamos um grafo \textit{G' = (V, E')}, onde os custos das arestas é modificado de acordo com os multiplicadores de lagrange. Submetemos o grafo \textit{G'} ao algoritmo de \textit{kruskal}. Logo o Limitante Dual será:
+%
+%\begin{equation}
+%\label{eq:sol}
+%z_{lb} = \max{} z_{u}
+%\end{equation}
+%
+%\section{Análise dos Resultados}
+%\label{sec:analise}
+%
+%\subsection{Características da Máquina}
+%\label{subsec:caracteristicas}
+%
+%\begin{itemize}
+%  \item{Processador: Athlon 64 3200+}
+%  \item{Memória: 1 GB}
+%\end{itemize}
+%
+%\subsection{Parâmetros de Entrada}
+%\label{subsec:parametros}
+%O programa recebe como parêmetros de entrada a instância, o fator multiplicativo de $\mu{}_{k}$($\alpha{}$), número máximo de iterações do método do subgradiente (MAXITER), número de iterações necessárias para alterar o valor de $\alpha{}$ caso o limitante dual não seja modificado (MAXITER\_NO\_IMPROV). \\
+%
+%Os resultados das tabelas da seção Tabela[\ref{subsec:tabelas}] foram obtidos usando:
+%
+%\begin{itemize}
+%  \item{$\alpha{} = 2$ }
+%  \item{MAXITER = 600}
+%  \item{MAXITER\_NO\_IMPROV = 10}
+%\end{itemize}
+%
+%\newpage{}
+%
+%\subsection{Comentários}
+%\label{subsec:comentarios}
+%Podemos observar alguns pontos ao executarmos o algoritmo:
+%
+%\begin{itemize}
+%  \item{Nas instâncias testadas o algoritmo foi capaz de achar a solução. Os limitantes duais poderiam ser melhorados aumentando o número de iterações do método do subgradiente.}
+%  \item{Se reduzirmos o valor de $\alpha{}$, o método do subgradiente executaria mais iterações para encontrar um bom limitante dual.}
+%  \item{Se o valor de MAXITER\_NO\_IMPROV for alto, o limitante dual pode não sofrer alterações, mas se o valor de MAXITER\_NO\_IMPROV for baixo, o valor de $\alpha{}$ é reduzido com mais frenqüência.}
+%\end{itemize}
+%
+%\section{Conclusão}
+%\label{sec:conclusao}
+%A \rellag{} é uma boa ferramenta para encontrarmos soluções viáveis sabendo a qualidade da solução para problemas computacionalmente difíceis\footnote{Problemas das classes NP, Np-difícil e NP-completo}. Os resultados poderiam ser melhorados caso a \rellag{} seja usada em conjunto com outro método, de \textit{branch-and-bound}, por exemplo.
+%
+%\newpage{}
+%
+%\section{Apêndices}
+%\label{sec:apendice}
+%
+%\subsection{Tabelas}
+%\label{subsec:tabelas}
+%
+%\begin{table}[htb]
+%\centering
+%\sffamily
+%  \begin{tabular}{|c|c|c|c|c|c|c|c| }
+%  \thead{Instância} & \thead{lim. superior} & \thead{tempo lim.sup.} & \thead{lim.inferior} & \thead{tempo lim.inf.} \\
+%  \hline{}
+%	tb1ct100\_1 &  3093.000000 &  0 seg e 3693 microseg  &  3092.009033 &  0 seg e 909985 microseg  \\
+%	tb1ct100\_2 &  3238.000000 &  0 seg e 2955 microseg  &  3237.012451 &  0 seg e 967072 microseg \\
+%	tb1ct100\_3 &  3638.000000 &  0 seg e 2972 microseg  &  3637.010498 &  1 seg e 68200 microseg  \\
+%	tb1ct200\_1 &  4684.000000 &  0 seg e 13541 microseg  &  4683.012695 &  7 seg e 771599 microseg \\
+%	tb1ct200\_2 &  5127.000000 &  0 seg e 13584 microseg  &  5125.515137 &  8 seg e 904495 microseg \\
+%	tb1ct200\_3 &  5289.000000 &  0 seg e 44930 microseg  &  5287.332520 &  9 seg e 710046 microseg \\
+%	tb1ct300\_1 &  5870.000000 &  0 seg e 48555 microseg  &  5865.886230 &  33 seg e 561949 microseg \\
+%	tb1ct300\_2 &  6331.000000 &  0 seg e 33948 microseg  &  6318.247559 &  23 seg e 14426 microseg \\
+%	tb1ct300\_3 &  5942.000000 &  0 seg e 34101 microseg  &  5927.026855 &  22 seg e 45816 microseg \\
+%	tb1ct400\_1 &  6693.000000 &  0 seg e 62692 microseg  &  6682.903809 &  42 seg e 710944 microseg \\
+%	tb1ct400\_2 &  7198.000000 &  0 seg e 63113 microseg  &  7161.229004 &  43 seg e 320406 microseg  \\
+%	tb1ct400\_3 &  6919.000000 &  0 seg e 62762 microseg  &  6876.789062 &  41 seg e 843775 microseg \\
+%	tb2ct500\_1 &  7308.000000 &  0 seg e 111046 microseg  &  7286.045898 &  73 seg e 13749 microseg \\
+%	tb2ct500\_2 &  7603.000000 &  0 seg e 122464 microseg  &  7525.924805 &  69 seg e 944870 microseg \\
+%	tb2ct500\_3 &  7869.000000 &  0 seg e 103428 microseg  &  7776.703125 &  72 seg e 378638 microseg \\
+%	tb2ct600\_1 &  8017.000000 &  0 seg e 174286 microseg  &  7975.786621 &  106 seg e 59853 microseg \\
+%	tb8ch100\_0 &  4648.000000 &  0 seg e 3195 microseg  &  4647.017090 &  1 seg e 194873 microseg \\
+%	tb8ch100\_1 &  4479.000000 &  0 seg e 3087 microseg  &  4478.020508 &  1 seg e 170476 microseg \\
+%	tb8ch100\_2 &  4620.000000 &  0 seg e 3092 microseg  &  4619.011230 &  1 seg e 133218 microseg  \\
+%	tb8ch200\_0 &  6222.000000 &  0 seg e 13664 microseg  &  6217.531250 &  8 seg e 869119 microseg \\
+%	tb8ch200\_1 &  6402.000000 &  0 seg e 13821 microseg  &  6397.343750 &  8 seg e 852699 microseg \\
+%	tb8ch200\_2 &  6752.000000 &  0 seg e 14692 microseg  &  6746.838379 &  9 seg e 114188 microseg  \\
+%	tb8ch300\_0 &  7610.000000 &  0 seg e 33821 microseg  &  7569.837402 &  21 seg e 911574 microseg \\
+%	tb8ch300\_1 &  7964.000000 &  0 seg e 34031 microseg  &  7913.877441 &  22 seg e 390810 microseg \\
+%	tb8ch300\_2 &  7893.000000 &  0 seg e 34287 microseg  &  7849.430176 &  21 seg e 861312 microseg \\
+%	tb8ch400\_0 &  8700.000000 &  0 seg e 64428 microseg  &  8573.940430 &  41 seg e 541726 microseg \\
+%	tb8ch400\_1 &  9351.000000 &  0 seg e 63550 microseg  &  9186.119141 &  41 seg e 172152 microseg \\
+%	tb8ch400\_2 &  8770.000000 &  0 seg e 63974 microseg  &  8624.081055 &  41 seg e 183688 microseg \\
+%	tb8ch500\_0 &  10046.000000 &  0 seg e 104070 microseg  &  9761.840820 &  69 seg e 970165 microseg \\
+%	tb8ch500\_1 &  10295.000000 &  0 seg e 106926 microseg  &  9964.626953 &  68 seg e 993752 microseg \\
+%	tb8ch500\_2 &  9826.000000 &  0 seg e 105562 microseg  &  9532.736328 &  70 seg e 260859 microseg \\
+%  \end{tabular}
+%  \caption[Resultados dos limitantes - ANDINST]{Dados sobre os limitantes dureante a execução do algoritmo para as instâncias do conjunto ANDINST.}
+%  \label{tab:dadosANDINST}
+%  \normalfont
+%\end{table}
+%\newpage{}
+%
+%\begin{table}[htb]
+%\centering
+%\sffamily
+%  \begin{tabular}{|c|c|c|c|c|c|c|c| }
+%  \thead{Instância} & \thead{solução} & \thead{tempo total} & \thead{Num. iterações} \\
+%  \hline{}
+%	tb1ct100\_1 &  3093.000000 &  0 seg e 933608 microseg &  279 \\
+%	tb1ct100\_2 &  3238.000000 &  0 seg e 977398 microseg &  298 \\
+%	tb1ct100\_3 &  3638.000000 &  1 seg e 78724 microseg &  329 \\
+%	tb1ct200\_1 &  4684.000000 &  7 seg e 821770 microseg &  523 \\
+%	tb1ct200\_2 &  5127.000000 &  8 seg e 960120 microseg &  600 \\
+%	tb1ct200\_3 &  5289.000000 &  9 seg e 791408 microseg &  600 \\
+%	tb1ct300\_1 &  5870.000000 &  33 seg e 772916 microseg &  600 \\
+%	tb1ct300\_2 &  6331.000000 &  23 seg e 138189 microseg &  600 \\
+%	tb1ct300\_3 &  5942.000000 &  22 seg e 157802 microseg &  600 \\
+%	tb1ct400\_1 &  6693.000000 &  42 seg e 921312 microseg &  600 \\
+%	tb1ct400\_2 &  7198.000000 &  43 seg e 529081 microseg &  600 \\
+%	tb1ct400\_3 &  6919.000000 &  42 seg e 65354 microseg &  600 \\
+%	tb2ct500\_1 &  7308.000000 &  73 seg e 822728 microseg &  600 \\
+%	tb2ct500\_2 &  7603.000000 &  70 seg e 635710 microseg &  600 \\
+%	tb2ct500\_3 &  7869.000000 &  72 seg e 934576 microseg &  600 \\
+%	tb2ct600\_1 &  8017.000000 &  107 seg e 265957 microseg &  600 \\
+%	tb8ch100\_0 &  4648.000000 &  1 seg e 224646 microseg &  357 \\
+%	tb8ch100\_1 &  4479.000000 &  1 seg e 351725 microseg &  358 \\
+%	tb8ch100\_2 &  4620.000000 &  1 seg e 143940 microseg &  347 \\
+%	tb8ch200\_0 &  6222.000000 &  8 seg e 926102 microseg &  600 \\
+%	tb8ch200\_1 &  6402.000000 &  8 seg e 899853 microseg &  600 \\
+%	tb8ch200\_2 &  6752.000000 &  9 seg e 183711 microseg &  600 \\
+%	tb8ch300\_0 &  7610.000000 &  22 seg e 30346 microseg &  600 \\
+%	tb8ch300\_1 &  7964.000000 &  22 seg e 503699 microseg &  600 \\
+%	tb8ch300\_2 &  7893.000000 &  21 seg e 986161 microseg &  600 \\
+%	tb8ch400\_0 &  8700.000000 &  41 seg e 759429 microseg &  600 \\
+%	tb8ch400\_1 &  9351.000000 &  41 seg e 392866 microseg &  600 \\
+%	tb8ch400\_2 &  8770.000000 &  41 seg e 399769 microseg &  600 \\
+%	tb8ch500\_0 &  10046.000000 &  70 seg e 312022 microseg &  600 \\
+%	tb8ch500\_1 &  10295.000000 &  70 seg e 152023 microseg &  600 \\
+%	tb8ch500\_2 &  9826.000000 &  70 seg e 818725 microseg &  600 \\
+%  \end{tabular}
+%  \caption[Solução Obtida - ANDINST]{Dados sobre a solução obtida na execução do algoritmo para as instâncias do conjunto ANDINST.}
+%  \label{tab:dadossolANDINST}
+%  \normalfont
+%\end{table}
+%\newpage{}
+%
+%\begin{table}[htb]
+%\centering
+%\sffamily
+%  \begin{tabular}{|c|c|c|c|c|c|c|c| }
+%  \thead{Instância} & \thead{lim. superior} & \thead{tempo lim.sup.} & \thead{lim.inferior} & \thead{tempo lim.inf.}  \\
+%  \hline{}
+%	dcmst100\_1 &  9269.000000 &  0 seg e 46733 microseg  &  9268.004883 &  1 seg e 309928 microseg  \\
+%	dcmst100\_2 &  9354.000000 &  0 seg e 3139 microseg  &  9353.020508 &  1 seg e 319283 microseg  \\
+%	dcmst100\_3 &  9893.000000 &  0 seg e 3160 microseg  &  9892.010742 &  1 seg e 346844 microseg  \\
+%	dcmst200\_1 &  11636.000000 &  0 seg e 14058 microseg  &  11627.237305 &  8 seg e 990821 microseg \\
+%	dcmst200\_2 &  12582.000000 &  0 seg e 13628 microseg  &  12570.480469 &  9 seg e 25165 microseg  \\
+%	dcmst200\_3 &  12180.000000 &  0 seg e 13712 microseg  &  12169.758789 &  9 seg e 2467 microseg  \\
+%	dcmst300\_1 &  13538.000000 &  0 seg e 32876 microseg  &  13469.073242 &  22 seg e 74980 microseg  \\
+%	dcmst300\_2 &  13124.000000 &  0 seg e 34226 microseg  &  13062.790039 &  22 seg e 140372 microseg \\
+%	dcmst300\_3 &  14841.000000 &  0 seg e 32971 microseg  &  14747.291992 &  22 seg e 386845 microseg \\
+%	dcmst400\_1 &  20122.000000 &  0 seg e 63910 microseg  &  19704.535156 &  41 seg e 523991 microseg \\
+%	dcmst400\_2 &  17717.000000 &  0 seg e 62719 microseg  &  17402.117188 &  42 seg e 166585 microseg  \\
+%	dcmst400\_3 &  15498.000000 &  0 seg e 62242 microseg  &  15275.782227 &  41 seg e 924440 microseg \\
+%	dcmst500\_1 &  18425.000000 &  0 seg e 103031 microseg  &  17829.978516 &  69 seg e 16285 microseg \\
+%	dcmst500\_2 &  20210.000000 &  0 seg e 103608 microseg  &  19515.792969 &  73 seg e 45803 microseg  \\
+%	dcmst500\_3 &  18675.000000 &  0 seg e 137589 microseg  &  18113.126953 &  71 seg e 523047 microseg \\
+%	dcmst600\_1 &  21153.000000 &  0 seg e 153188 microseg  &  20153.755859 &  105 seg e 584483 microseg \\
+%	dcmst600\_2 &  20673.000000 &  0 seg e 251154 microseg  &  19690.443359 &  121 seg e 56400 microseg  \\
+%	dcmst600\_3 &  20975.000000 &  0 seg e 166921 microseg  &  19947.257812 &  112 seg e 644657 microseg \\
+%  \end{tabular}
+%  \caption[Resultados dos limitantes - DE]{Dados sobre os limitantes dureante a execução do algoritmo para as instâncias do conjunto DE.}
+%  \label{tab:dados-DE}
+%  \normalfont
+%\end{table}
+%\newpage{}
+%
+%\begin{table}[htb]
+%\centering
+%\sffamily
+%  \begin{tabular}{|c|c|c|c|c|c|c|c| }
+%  \thead{Instância} & \thead{solução} & \thead{tempo total} & \thead{Num. iterações} \\
+%  \hline{}
+%	dcmst100\_1 &  9269.000000 &  1 seg e 405339 microseg &  398 \\
+%	dcmst100\_2 &  9354.000000 &  1 seg e 343831 microseg &  402 \\
+%	dcmst100\_3 &  9893.000000 &  1 seg e 358451 microseg &  411 \\
+%	dcmst200\_1 &  11636.000000 &  9 seg e 40355 microseg &  600 \\
+%	dcmst200\_2 &  12582.000000 &  9 seg e 87197 microseg &  600 \\
+%	dcmst200\_3 &  12180.000000 &  9 seg e 58716 microseg &  600 \\
+%	dcmst300\_1 &  13538.000000 &  22 seg e 301061 microseg &  600 \\
+%	dcmst300\_2 &  13124.000000 &  22 seg e 545923 microseg &  600 \\
+%	dcmst300\_3 &  14841.000000 &  22 seg e 745789 microseg &  600 \\
+%	dcmst400\_1 &  20122.000000 &  41 seg e 813500 microseg &  600 \\
+%	dcmst400\_2 &  17717.000000 &  42 seg e 417364 microseg &  600 \\
+%	dcmst400\_3 &  15498.000000 &  42 seg e 145495 microseg &  600 \\
+%	dcmst500\_1 &  18425.000000 &  69 seg e 392478 microseg &  600 \\
+%	dcmst500\_2 &  20210.000000 &  73 seg e 619055 microseg &  600 \\
+%	dcmst500\_3 &  18675.000000 &  72 seg e 292937 microseg &  600 \\
+%	dcmst600\_1 &  21153.000000 &  106 seg e 639273 microseg &  600 \\
+%	dcmst600\_2 &  20673.000000 &  123 seg e 281792 microseg &  600 \\
+%	dcmst600\_3 &  20975.000000 &  113 seg e 227326 microseg &  600 \\
+%  \end{tabular}
+%  \caption[Solução Obtida - DE]{Dados sobre a solução obtida na execução do algoritmo para as instâncias do conjunto DE.}
+%  \label{tab:dadossol-DE}
+%  \normalfont
+%\end{table}
+%\newpage{}
+%
+%\begin{table}[htb]
+%\centering
+%\sffamily
+%  \begin{tabular}{|c|c|c|c|c|c|c|c| }
+%  \thead{Instância} & \thead{lim. superior} & \thead{tempo lim.sup.} & \thead{lim.inferior} & \thead{tempo lim.inf.} \\
+%  \hline{}
+%	R123\_dcmst100\_1 &  2800.000000 &  0 seg e 3059 microseg  &  2799.009277 &  1 seg e 223834 microseg  \\
+%	R123\_dcmst100\_2 &  4076.000000 &  0 seg e 3062 microseg  &  4075.011475 &  1 seg e 302789 microseg  \\
+%	R123\_dcmst100\_3 &  3789.000000 &  0 seg e 3110 microseg  &  3788.010498 &  1 seg e 294035 microseg  \\
+%	R123\_dcmst200\_1 &  2888.000000 &  0 seg e 14244 microseg  &  2883.748047 &  9 seg e 116119 microseg  \\
+%	R123\_dcmst200\_2 &  4015.000000 &  0 seg e 13831 microseg  &  4007.998047 &  9 seg e 81403 microseg  \\
+%	R123\_dcmst200\_3 &  3708.000000 &  0 seg e 14305 microseg  &  3702.052734 &  9 seg e 114670 microseg  \\
+%	R123\_dcmst300\_1 &  3248.000000 &  0 seg e 33645 microseg  &  3210.974365 &  22 seg e 382003 microseg \\
+%	R123\_dcmst300\_2 &  3002.000000 &  0 seg e 33907 microseg  &  2968.406982 &  22 seg e 661534 microseg  \\
+%	R123\_dcmst300\_3 &  3839.000000 &  0 seg e 33811 microseg  &  3792.435547 &  22 seg e 349040 microseg  \\
+%	R123\_dcmst400\_1 &  4569.000000 &  0 seg e 68138 microseg  &  4405.135742 &  41 seg e 941650 microseg  \\
+%	R123\_dcmst400\_2 &  4233.000000 &  0 seg e 64743 microseg  &  4079.310303 &  41 seg e 626056 microseg  \\
+%	R123\_dcmst400\_3 &  3226.000000 &  0 seg e 63960 microseg  &  3130.205811 &  42 seg e 98180 microseg  \\
+%	R123\_dcmst500\_1 &  3707.000000 &  0 seg e 102997 microseg  &  3485.486816 &  69 seg e 593013 microseg  \\
+%	R123\_dcmst500\_2 &  4365.000000 &  0 seg e 103521 microseg  &  4079.325195 &  75 seg e 440612 microseg  \\
+%	R123\_dcmst500\_3 &  3565.000000 &  0 seg e 106188 microseg  &  3362.041992 &  70 seg e 354761 microseg  \\
+%	R123\_dcmst600\_1 &  4850.000000 &  0 seg e 154349 microseg  &  4369.477539 &  108 seg e 439376 microseg \\
+%	R123\_dcmst600\_2 &  3908.000000 &  0 seg e 155916 microseg  &  3558.790527 &  107 seg e 99087 microseg  \\
+%	R123\_dcmst600\_3 &  4303.000000 &  0 seg e 164662 microseg  &  3895.438721 &  107 seg e 510745 microseg \\
+%  \end{tabular}
+%  \caption[Resultados dos limitantes - R123]{Dados sobre os limitantes dureante a execução do algoritmo para as instâncias do conjunto R123.}
+%  \label{tab:dadosR123}
+%  \normalfont
+%\end{table}
+%
+%\newpage{}
+%
+%\begin{table}[htb]
+%\centering
+%\sffamily
+%  \begin{tabular}{|c|c|c|c|c|c|c|c| }
+%  \thead{Instância} & \thead{solução} & \thead{tempo total} & \thead{Num. iterações} \\
+%  \hline{}
+%	R123\_dcmst100\_1 &  2800.000000 &  1 seg e 261202 microseg &  368 \\
+%	R123\_dcmst100\_2 &  4076.000000 &  1 seg e 313940 microseg &  391 \\
+%	R123\_dcmst100\_3 &  3789.000000 &  1 seg e 319668 microseg &  388 \\
+%	R123\_dcmst200\_1 &  2888.000000 &  9 seg e 172991 microseg &  600 \\
+%	R123\_dcmst200\_2 &  4015.000000 &  9 seg e 150261 microseg &  600 \\
+%	R123\_dcmst200\_3 &  3708.000000 &  9 seg e 184608 microseg &  600 \\
+%	R123\_dcmst300\_1 &  3248.000000 &  22 seg e 515326 microseg &  600 \\
+%	R123\_dcmst300\_2 &  3002.000000 &  22 seg e 780455 microseg &  600 \\
+%	R123\_dcmst300\_3 &  3839.000000 &  22 seg e 474463 microseg &  600 \\
+%	R123\_dcmst400\_1 &  4569.000000 &  42 seg e 168345 microseg &  600 \\
+%	R123\_dcmst400\_2 &  4233.000000 &  41 seg e 854725 microseg &  600 \\
+%	R123\_dcmst400\_3 &  3226.000000 &  42 seg e 324182 microseg &  600 \\
+%	R123\_dcmst500\_1 &  3707.000000 &  70 seg e 61623 microseg &  600 \\
+%	R123\_dcmst500\_2 &  4365.000000 &  75 seg e 793565 microseg &  600 \\
+%	R123\_dcmst500\_3 &  3565.000000 &  71 seg e 273890 microseg &  600 \\
+%	R123\_dcmst600\_1 &  4850.000000 &  109 seg e 173333 microseg &  600 \\
+%	R123\_dcmst600\_2 &  3908.000000 &  107 seg e 837781 microseg &  600 \\
+%	R123\_dcmst600\_3 &  4303.000000 &  108 seg e 189067 microseg &  600 \\
+%  \end{tabular}
+%  \caption[Solução Obtida - R123]{Dados sobre a solução obtida na execução do algoritmo para as instâncias do conjunto R123.}
+%  \label{tab:dadossolR123}
+%  \normalfont
+%\end{table}
+%
+%\newpage{}
+%
+%\subsection{Figuras}
+%\label{subsec:figuras}
+%
+%\begin{figure}[htb]
+%  \includegraphics[scale=0.5]{graf1}
+%  \caption[Gráfico mostrando a alteração dos limitantes para a instância tb8ch500\_2.]{Gráfico mostrando a alteração dos limitantes para a instância tb8ch500\_2.}
+%  \label{fig:fig1}
+%\end{figure}
+%
+%\newpage{}
+%
+%\begin{figure}[htb]
+%  \includegraphics[scale=0.5]{graf2}
+%  \caption[Gráfico mostrando a alteração dos limitantes para a instância dcmst500\_3.]{Gráfico mostrando a alteração dos limitantes para a instância dcmst500\_3.}
+%  \label{fig:fig2}
+%\end{figure}
+%
+%\begin{figure}[htb]
+%  \includegraphics[scale=0.5]{graf3}
+%  \caption[Gráfico mostrando a alteração dos limitantes para a instância R123\_dcmst200\_3.]{Gráfico mostrando a alteração dos limitantes para a instância R123\_dcmst200\_3.}
+%  \label{fig:fig3}
+%\end{figure}
+%
+%\pagebreak{}
+%\begin{figure}[htb]
+%\centering
+%  \includegraphics[scale=0.4]{graph}
+%  \caption[Plotagem dos dados obtidos.]{Plotagem dos dados obtidos no experimento.}
+%  \label{fig:resultado}
+%\end{figure}
+
+\bibliographystyle{plain}
+\bibliography{ra046874}
+
+% Fim
+\label{fimdoc}
+\end{document}

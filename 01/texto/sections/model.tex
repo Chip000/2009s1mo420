@@ -1,0 +1,55 @@
+\section{Formulação PLI para o Problema}
+\label{sec:form_pcmcrc}
+
+A formulação do \pcmcrc{} é a mesma formulação do \pcmc{} adicionando a restrição de custo $c(P^{*}) \le C$.
+Então temos o seguinte modelo para o \mpcmcrc{}: \\
+
+Função Objetivo:
+
+\begin{equation}
+\label{eq:fo_pli}
+z = \min \sum_{(i, j) \in E} d_{i, j} \cdot x_{i, j}
+\end{equation} \\
+
+Sujeito a:
+
+\begin{align}
+\label{eq:restr_pli_pcmc1}
+&\sum_{j \in V} x_{s, j} = 1 \\
+\label{eq:restr_pli_pcmc2}
+&\sum_{i \in V} x_{i, t} = 1 \\
+\label{eq:restr_pli_pcmc3}
+&\sum_{j \in V} x_{i, j} - \sum_{j \in V} x_{j, i} = 0, \qquad \forall i \in V\backslash\{s, t\}
+\end{align}
+
+\begin{equation}
+\label{eq:restr_pli_knap}
+\sum_{(i, j) \in E} c_{i, j} . x_{i, j} \le C
+\end{equation}
+
+\begin{equation}
+\label{eq:restr_pli_x}
+x_{i, j} \in \mathbb{B}, \qquad \forall (i, j) \in E
+\end{equation} \\
+
+Onde: 
+
+\begin{itemize}
+\item{$d_{i, j}$: Distância do vértice $i$ para o vértice $j$.}
+\item{$c_{i, j}$: Custo do vértice $i$ para o vértice $j$.}
+\item{$x_{i, j}$: 1 se a aresta ($i$, $j$) pertence ao caminho e 0 caso contrário.}
+\item{$s$: Vértice origem.}
+\item{$t$: Vértice destino.}
+\end{itemize}
+
+Observe que as restrições (\ref{eq:restr_pli_pcmc1}), (\ref{eq:restr_pli_pcmc2}) e (\ref{eq:restr_pli_pcmc3}) 
+são o conjunto de restrições do problema clássico do \cmc{}, onde:
+
+\begin{itemize}
+\item{Restrição (\ref{eq:restr_pli_pcmc1}): Só é permitida uma aresta saindo do vértice origem $s$.}
+\item{Restrição (\ref{eq:restr_pli_pcmc2}): Só é permitida uma aresta entrando no vértice destino $t$.}
+\item{Restrição (\ref{eq:restr_pli_pcmc3}): Um vértice $i \in V\backslash\{s, t\}$ no caminho deve possuir apenas 
+uma aresta entrando e uma aresta saindo.}
+\end{itemize}
+
+A restrição (\ref{eq:restr_pli_knap}) é a restrição do tipo \knap{} que representa a restrição de custo.

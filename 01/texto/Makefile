@@ -6,22 +6,24 @@ DVI=$(TARGET).dvi
 PS=$(TARGET).ps
 PDF=$(TARGET).pdf
 
-.PHONY: all clean
+.PHONY: pdf clean
 
 $(DVI): $(TEX)
 	latex $(TEX)
-	bibtex $(TARGET)
+#	bibtex $(TARGET)
 	latex $(TEX)
 	latex $(TEX)
-	
+
 $(PS): $(DVI)
 	dvips -Pcmz -o -t letter $(TARGET).dvi
 
 $(PDF): $(PS)
 	ps2pdf $(PS)
 
-pdf: $(PDF)
+pdf: clean $(PDF)
 
 clean:
-	rm -f $(EPS_DIR)/*.eps *~ $(PDF) $(PS) $(DVI) *.aux *.log *.loa *.bbl *.blg *.lof *.lot *.toc *.ps *.pdf .nfs*
+	rm -f *~ $(PDF) $(PS) $(DVI) 
+	rm -f *.aux *.log *.loa *.bbl *.blg *.lof *.lot 
+	rm -f *.toc *.ps .nfs* *.out
 

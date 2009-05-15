@@ -1,0 +1,115 @@
+\section{Relaxação Lagrangeana}
+\label{sec:relaxlag}
+
+A relaxação lagrangeana foi realizada sobre dois conjuntos de restrições. A Relaxação onde
+o conjunto de restrições do \cmc{} foram dualizadas é chamada de \rl{1}. A Relaxação 
+onde a restrição do tipo \knap{} foi dualizada é chamada de \rl{2}.
+
+O Problema Primal Lagrangeano para cada relaxação é diferente. Para a relaxação \rl{1}, o problema
+primal lagrangeano é o Problema da \knap{}. Já para a relaxação \rl{2}, o problema primal lagrangeano é o \pcmc{}.
+
+\subsection{\rl{1} - Problema da \knap{}}
+\label{subsec:relaxlag_rl1}
+
+A relaxação \rl{1} tem como problema primal lagrangeano o Problema da \knap{}. Este é um problema de 
+maximização onde desejamos pegar o maior número de \aspas{itens} satisfazendo a restrição de peso da mochila. 
+Temos que $\min z = max -z$, então transformaremos o problema de minimização para um 
+de maximização.
+
+Logo temos o seguinte modelo para o problema primal lagrangeano da relaxação \rl{1}: \\
+
+Função Objetivo:
+
+\begin{align}
+\label{eq:fo_rl1}
+z(u) = \max -(&\sum_{j \in V} ((d_{s, j} + u_{s}) \cdot x_{s, j}) + \nonumber\\
+&\sum_{i \in V} ((d_{i, t} + u_{t}) \cdot x_{i, t}) + \\
+&\sum_{j \in V\backslash\{s, t\}} \sum_{i \in V} (d_{i, j} \cdot x_{i, j}) - u_{s} - u_{t}) \nonumber
+\end{align} \\
+
+Sujeito a:
+
+\begin{equation}
+\label{eq:restr_rl1_knap}
+\sum_{(i, j) \in E} c_{i, j} . x_{i, j} \le C
+\end{equation}
+
+\begin{equation}
+\label{eq:restr_rl1_x}
+x_{i, j} \in \mathbb{B}, \qquad \forall (i, j) \in E
+\end{equation} \\
+
+\subsubsection{Custos Lagrangeanos}
+\label{subsubsec:custo_lag_rl1}
+
+Para a relaxação \rl{1}, os custos lagrangeanos são os custos relacionados ao vértice origem $s$ e 
+ao vértice destino $t$. Como o grafo é simples e não-orientado temos que $x_{i, j} = x_{j, i}$, logo 
+os multiplicadores associados a restrição (\ref{eq:restr_pli_pcmc3}) do problema original se anulam.
+Então temos os seguintes custos lagrangeanos:
+
+\begin{align}
+\tilde{c}_{s, j} = d_{s, j} + u_{s}, \qquad &\text{para o vértice s}. \nonumber\\
+\tilde{c}_{i, t} = d_{i, t} + u_{t}, \qquad &\text{para o vértice t}. \nonumber\\
+\tilde{c}_{i, j} = d_{i, j}, \qquad &\text{para os vértices diferentes de s e t}. \nonumber
+\end{align}
+
+\subsubsection{Algoritmo}
+\label{subsubsec:alg_rl1}
+
+O algoritmo implementado para resolver o Problema da \knap{} é um algoritmo pseudo-polinomial com 
+complexidade de tempo de $O(C \cdot |E|)$ TODO .
+
+%fazer algoritmo
+
+\subsection{\rl{2} - \pcmc{}}
+\label{subsec:relaxlag_rl2}
+
+A relaxação \rl{2} tem como problema primal lagrangeano o \pcmc{}. Dado um grafo $G = (V, E)$ simples 
+não-orientado e dois vértices distintos $s$ e $t$, o \mpcmc{} é encontrar o menor caminho $P^{*}$ que 
+liga os vértices $s$ e $t$.
+
+O problema primal lagrangeano da relaxação \rl{2} possui o seguinte modelo:
+
+Função Objetivo:
+
+\begin{equation}
+\label{eq:fo_rl2}
+z(u) = \min \sum_{(i, j) \in E} (d_{i, j} + u \cdot c_{i, j}). x_{i, j} - u \cdot C
+\end{equation} \\
+
+Sujeito a:
+
+\begin{align}
+\label{eq:restr_rl2_pcmc}
+&\sum_{j \in V} x_{s, j} = 1 \nonumber \\
+&\sum_{i \in V} x_{i, t} = 1 \\
+&\sum_{j \in V} x_{i, j} - \sum_{j \in V} x_{j, i} = 1, \qquad \forall i \in V\backslash\{s, t\} \nonumber
+\end{align}
+
+\begin{equation}
+\label{eq:restr_rl2_x}
+x_{i, j} \in \mathbb{B}, \qquad \forall (i, j) \in E
+\end{equation} \\
+
+\subsubsection{Custos Lagrangeanos}
+\label{subsubsec:custo_lag_rl2}
+
+Para a relaxação \rl{2}, o custo lagrangeano é o custo relacionado a restrição de custo 
+do caminho (\ref{eq:restr_pli_knap}).
+
+\begin{align}
+\tilde{c}_{i, j} = d_{i, j} + u \cdot c_{i, j}. \nonumber\\
+\end{align}
+
+\subsubsection{Algoritmo}
+\label{subsubsec:alg_rl1}
+
+O algoritmo implementado para resolver o \pcmc{} é o algoritmo de Dijkstra que possui 
+complexidade de tempo de $O(|V|^{2})$ TODO .
+
+% fazer algoritmo
+
+\subsection{Força dos Limitantes}
+\label{subsec:str_bound}
+
+
