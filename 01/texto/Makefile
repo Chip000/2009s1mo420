@@ -10,7 +10,7 @@ PDF=$(TARGET).pdf
 
 $(DVI): $(TEX)
 	latex $(TEX)
-#	bibtex $(TARGET)
+	bibtex $(TARGET)
 	latex $(TEX)
 	latex $(TEX)
 

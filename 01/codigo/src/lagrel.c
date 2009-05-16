@@ -378,7 +378,7 @@ static float primal_bound(struct graph *G, int ***x)
 	w = 1;
 	cost = INF;
 
-	while ((w > 0) && (cost > G->max_cost)) {
+	while ((w >= 0) && (cost > G->max_cost)) {
 		new_cost(&C, G->cost, G->dist, G->v, w);
 
 		/* Encontra o menor caminho usando o (1-w)*custo + 
@@ -522,7 +522,7 @@ void lag_heuristic(struct subgrad_param *subpar,
 			c[i] = 0;
 		}
 
-		while ((k <= subpar->max_iter) && (ub - lb >= 1)) {
+		while ((k < subpar->max_iter) && (ub - lb >= 1)) {
 			/* Atualizando os custos lagrangeanos */
 			update_lag_cost_rl1(G, u, &E);
 
@@ -601,7 +601,7 @@ void lag_heuristic(struct subgrad_param *subpar,
 		}
 		
 		/* caso ultrapasse o numero maximo de iteracoes */
-		if (k > subpar->max_iter) {
+		if (k >= subpar->max_iter) {
 			sol = calc_solution(G, x_sol);
 			cost = calc_cost(G, x_sol);
 			k--; /* ajuste no numero de iteracoes */
@@ -636,7 +636,7 @@ void lag_heuristic(struct subgrad_param *subpar,
 			}
 		}
 
-		while ((k <= subpar->max_iter) && (ub - lb >= 1)) {
+		while ((k < subpar->max_iter) && (ub - lb >= 1)) {
 			/* Atualizando os custos lagrangeanos */
 			update_lag_cost_rl2(G, u[0], &lag_cost);
 
@@ -721,7 +721,7 @@ void lag_heuristic(struct subgrad_param *subpar,
 		}
 		
 		/* caso ultrapasse o numero maximo de iteracoes */
-		if (k > subpar->max_iter) {
+		if (k >= subpar->max_iter) {
 			sol = calc_solution(G, x_sol);
 			cost = calc_cost(G, x_sol);
 			k--; /* ajuste no numero de iteracoes */

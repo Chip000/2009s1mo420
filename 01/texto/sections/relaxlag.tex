@@ -1,5 +1,9 @@
-\section{Relaxação Lagrangeana}
-\label{sec:relaxlag}
+\section{Limitante Dual}
+\label{sec:limdual}
+
+O Limitante Dual (Limitante Inferior) para o \pcmcrc{} é obtido usando o método do subgradiente.
+Neste método calculamos os multiplicadores de lagrange a cada iteração. Os multiplicadores são
+diferentes dependendo da relaxação lagrangeana escolhida.
 
 A relaxação lagrangeana foi realizada sobre dois conjuntos de restrições. A Relaxação onde
 o conjunto de restrições do \cmc{} foram dualizadas é chamada de \rl{1}. A Relaxação 
@@ -53,13 +57,21 @@ Então temos os seguintes custos lagrangeanos:
 \tilde{c}_{i, j} = d_{i, j}, \qquad &\text{para os vértices diferentes de s e t}. \nonumber
 \end{align}
 
-\subsubsection{Algoritmo}
+\subsubsection{Detalhes da Implementação}
 \label{subsubsec:alg_rl1}
 
-O algoritmo implementado para resolver o Problema da \knap{} é um algoritmo pseudo-polinomial com 
-complexidade de tempo de $O(C \cdot |E|)$ TODO .
+O algoritmo implementado para resolver o Problema da \knap{} é um algoritmo pseudo-polinomial que 
+usa programação dinâmica e possui complexidade de tempo de $O(C \cdot |E|)$~\cite{wolsey}.
 
-%fazer algoritmo
+O algoritmo constrói a matriz de programação dinâmica e recupera a solução usando um algoritmo 
+recursivo que possui complexidade de tempo de $O(|E|)$.
+
+%O algoritmo implementado para resolver o Problema da \knap{} é o \textit{knapsack\_dp()}~(\textbf{Algoritmo~\ref{alg:knap_dp}}), 
+%um algoritmo pseudo-polinomial que usa programação dinâmica e possui complexidade de tempo 
+%de $O(C \cdot |E|)$~\cite{wolsey}.
+%
+%O \textbf{Algoritmo~\ref{alg:knap}} \textit{knapsack()} constrói a matriz usando o \textit{knapsack\_dp()} e recupera a solução
+%usando o \textbf{Algoritmo~\ref{alg:knap_sol}} \textit{knapsack\_sol()}, algoritmo recursivo que possui complexidade de tempo de $O(|E|)$.
 
 \subsection{\rl{2} - \pcmc{}}
 \label{subsec:relaxlag_rl2}
@@ -101,15 +113,52 @@ do caminho (\ref{eq:restr_pli_knap}).
 \tilde{c}_{i, j} = d_{i, j} + u \cdot c_{i, j}. \nonumber\\
 \end{align}
 
-\subsubsection{Algoritmo}
-\label{subsubsec:alg_rl1}
+\subsubsection{Detalhes da Implementação}
+\label{subsubsec:alg_rl2}
 
-O algoritmo implementado para resolver o \pcmc{} é o algoritmo de Dijkstra que possui 
-complexidade de tempo de $O(|V|^{2})$ TODO .
+O algoritmo implementado para resolver o \pcmc{} é o algoritmo de Dijkstra, implementação
+simples com vetores, que possui complexidade de tempo de $O(|V|^{2})$~\cite{cormen}.
 
-% fazer algoritmo
+Então para pegar o menor caminho do vértice $s$ para o vértice $t$ usa-se o algoritmo de Dijkstra para calcular as distâncias de $s$
+para todos os vértices, e depois retorna o custo do caminho e as arestas pertencentes ao caminho de $s$ e $t$.
+
+%O algoritmo implementado para resolver o \pcmc{} é o algoritmo de Dijkstra~(\textbf{Algoritmo~\ref{alg:dijkstra}}), implementação
+%simples com vetores, que possui complexidade de tempo de $O(|V|^{2})$~\cite{cormen}.
+%
+%O \textbf{Algoritmo~\ref{alg:dijkstra}} calcula os caminhos mais curtos do vértice de origem $s$ para todos os outros vértices do grafo $G$. 
+%A função \textit{EXTRACT\_MIN()} retorna o elemento com a menor valor de distância no conjunto $Q$, 
+%removendo-o do conjunto $Q$.
+%
+%O \textbf{Algoritmo~\ref{alg:shortest_path}} \textit{shortest\_path()} usa o algoritmo de Dijkstra para calcular as distâncias, e
+%pega o menor caminho do vértice de origem $s$ para o vértice destino $t$, retornando o custo 
+%do caminho e as arestas pertencentes a este caminho.
 
 \subsection{Força dos Limitantes}
 \label{subsec:str_bound}
 
+Para analisar a força dos limitantes temos que verificar se modelo define a sua envoltória convexa. O limitante será melhor
+se o espaço definido pelo modelo está mais próximo da envoltória convexa.
+
+A formulação da relaxação \rl{1} não define a envoltória para o Problema da \knap{}, mas fornece um limitante melhor
+que a relaxação linear do problema. Já a formulação da relaxação \rl{2}, que é um caso particular do Problema de Fluxo Mínimo de Redes,
+define a envoltória do \pcmc{}. Portanto os limitantes gerados pela \rl{2} são melhores que os limitantes gerados pela \rl{1}.
+
+\subsection{Critério de Parada}
+\label{subsec:crit_parada}
+
+O método do subgradiente para usando os seguintes critérios:
+
+\begin{itemize}
+\item{Solução ótima é encontrada.}
+\item{Limitante Primal $-$ Limitante Dual $<$ $1$.}
+\item{Chegou ao número máximo de iterações.}
+\end{itemize}
+
+Se $u \ge 0$, a solução $\bar{x}$ do problema relaxado $IP(u)$ é ótima se:
+
+\begin{itemize}
+\item{$\bar{x}$ for solução ótima do problema relaxado $IP(u)$.}
+\item{$D \cdot \bar{x} \le d$.}
+\item{$(D \cdot \bar{x})_{i} \le d_{i}$, para $u_{i} > 0$.}
+\end{itemize}
 
