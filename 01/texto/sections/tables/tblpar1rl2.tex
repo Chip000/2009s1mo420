@@ -1,0 +1,73 @@
+\begin{table}[htb]
+\centering
+\sffamily
+  \begin{tabular}{c|c|c|c|c}
+  \thead{Instância} & \thead{lim. superior} & \thead{tempo lim.sup.} & \thead{lim.inferior} & \thead{tempo lim.inf.} \\
+  \hline{}
+	v100\_d10 & $ 144.000000$ &  752 microseg  & $ 143.364960$ &  999 microseg \\
+	v100\_d20 & $ 154.000000$ &  2951 microseg  & $ 147.570648$ &  1700 microseg \\
+	v100\_d30 & $ 142.000000$ &  836 microseg  & $ 141.532700$ &  1070 microseg \\
+	v100\_d40 & $ 145.000000$ &  3972 microseg  & $ 143.912262$ &  2969 microseg \\
+	v100\_d5 & $ 244.000000$ &  11312 microseg  & $ 238.934387$ &  7779 microseg \\
+	v10\_d50 & $ 200.000000$ &  206 microseg  & $ 175.113251$ &  69 microseg \\
+	v10\_d60 & $ 142.000000$ &  66 microseg  & $ 141.081635$ &  176 microseg \\
+	v10\_d70 & $ 171.000000$ &  239 microseg  & $ 156.545502$ &  99 microseg \\
+	v10\_d80 & $ 162.000000$ &  227 microseg  & $ 157.063904$ &  106 microseg \\
+	v30\_d30 & $ 160.000000$ &  511 microseg  & $ 150.618179$ &  519 microseg \\
+	v30\_d40 & $ 188.000000$ &  1896 microseg  & $ 184.179108$ &  579 microseg \\
+	v30\_d50 & $ 143.000000$ &  163 microseg  & $ 142.284439$ &  322 microseg \\
+	v30\_d60 & $ 148.000000$ &  1255 microseg  & $ 146.443542$ &  1445 microseg \\
+	v30\_d70 & $ 145.000000$ &  466 microseg  & $ 144.320038$ &  613 microseg \\
+	v40\_d20 & $ 213.000000$ &  5605 microseg  & $ 166.635010$ &  2335 microseg \\
+	v40\_d30 & $ 143.000000$ &  142 microseg  & $ 142.477676$ &  325 microseg \\
+	v40\_d40 & $ 155.000000$ &  1438 microseg  & $ 149.382812$ &  842 microseg \\
+	v40\_d50 & $ 150.000000$ &  3096 microseg  & $ 147.801117$ &  2624 microseg \\
+	v40\_d60 & $ 178.000000$ &  3532 microseg  & $ 154.063568$ &  848 microseg \\
+	v60\_d10 & $ 253.000000$ &  1663 microseg  & $ 237.783844$ &  671 microseg \\
+	v60\_d20 & $ 271.000000$ &  8654 microseg  & $ 190.677246$ &  865 microseg \\
+	v60\_d30 & $ 177.000000$ &  5798 microseg  & $ 158.967621$ &  931 microseg \\
+	v60\_d40 & $ 362.000000$ &  13505 microseg  & $ 227.562195$ &  940 microseg \\
+	v60\_d50 & $ 161.000000$ &  7585 microseg  & $ 149.956909$ &  1875 microseg \\
+  \end{tabular}
+  \caption[Limitantes - param1 - \rl{2}.]{Valores dos limitantes superior e inferior usando o arquivo de parâmetro param1 na relaxação \rl{2}.}
+  \label{tab:dados_lim_p1_rl2}
+  \normalfont
+\end{table}
+
+\newpage{}
+
+\begin{table}[htb]
+\centering
+\sffamily
+  \begin{tabular}{c|c|c|c|c|c}
+  \thead{Instância} & \thead{distância} & \thead{custo} & \thead{tempo total} & \thead{Num. iter.} & \thead{Sol. Ótima}\\
+  \hline{}
+	v100\_d10 & $ 144.000000$ & $ 191.000000$ &  2493 microseg & $ 2 $ & Não\\
+	v100\_d20 & $ 154.000000$ & $ 138.000000$ &  5664 microseg & $ 3 $ & Sim\\
+	v100\_d30 & $ 142.000000$ & $ 197.000000$ &  3203 microseg & $ 2 $ & Não\\
+	v100\_d40 & $ 145.000000$ & $ 131.000000$ &  8670 microseg & $ 5 $ & Não\\
+	v100\_d5 & $ 244.000000$ & $ 427.000000$ &  19654 microseg & $ 17 $ & Sim\\
+	v10\_d50 & $ 200.000000$ & $ 186.000000$ &  520 microseg & $ 4 $ & Sim\\
+	v10\_d60 & $ 142.000000$ & $ 133.000000$ &  1175 microseg & $ 2 $ & Não\\
+	v10\_d70 & $ 171.000000$ & $ 129.000000$ &  600 microseg & $ 5 $ & Sim\\
+	v10\_d80 & $ 162.000000$ & $ 104.000000$ &  601 microseg & $ 7 $ & Sim\\
+	v30\_d30 & $ 160.000000$ & $ 119.000000$ &  2049 microseg & $ 3 $ & Sim\\
+	v30\_d40 & $ 188.000000$ & $ 181.000000$ &  2847 microseg & $ 9 $ & Sim\\
+	v30\_d50 & $ 143.000000$ & $ 157.000000$ &  1593 microseg & $ 2 $ & Não\\
+	v30\_d60 & $ 148.000000$ & $ 129.000000$ &  3787 microseg & $ 11 $ & Sim\\
+	v30\_d70 & $ 145.000000$ & $ 119.000000$ &  2307 microseg & $ 5 $ & Não\\
+	v40\_d20 & $ 213.000000$ & $ 210.000000$ &  9014 microseg & $ 15 $ & Sim\\
+	v40\_d30 & $ 143.000000$ & $ 149.000000$ &  1609 microseg & $ 2 $ & Não\\
+	v40\_d40 & $ 155.000000$ & $ 102.000000$ &  3537 microseg & $ 4 $ & Sim\\
+	v40\_d50 & $ 150.000000$ & $ 134.000000$ &  6930 microseg & $ 16 $ & Sim\\
+	v40\_d60 & $ 178.000000$ & $ 106.000000$ &  5630 microseg & $ 4 $ & Sim\\
+	v60\_d10 & $ 253.000000$ & $ 248.000000$ &  2764 microseg & $ 3 $ & Sim\\
+	v60\_d20 & $ 271.000000$ & $ 171.000000$ &  10034 microseg & $ 4 $ & Sim\\
+	v60\_d30 & $ 177.000000$ & $ 109.000000$ &  7406 microseg & $ 4 $ & Sim\\
+	v60\_d40 & $ 362.000000$ & $ 103.000000$ &  15170 microseg & $ 4 $ & Sim\\
+	v60\_d50 & $ 161.000000$ & $ 139.000000$ &  10285 microseg & $ 8 $ & Sim\\
+  \end{tabular}
+  \caption[Solução - param1 - \rl{2}.]{Melhor solução encontrada usando o arquivo de parâmetro param1 na relaxação \rl{2}.}
+  \label{tab:dados_sol_p1_rl2}
+  \normalfont
+\end{table}

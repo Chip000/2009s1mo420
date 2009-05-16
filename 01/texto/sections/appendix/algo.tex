@@ -1,0 +1,127 @@
+\subsection{Algoritmos Implementados}
+\label{appsec:alg}
+
+Nesta seção se encontra os algoritmos usados na implementação do trabalho.
+
+\begin{algorithm}[!ht]
+\caption{knapsack\_dp($G = (V, E)$, $d$, $w$, $W$)}
+\Entrada{Grafo $G$ simples não-orientado, $d$ distâncias das arestas de $G$, 
+$w$ custos das arestas de $G$ e $W$ peso máximo da mochila.}
+\Saida{Custo dos itens escolhidos e matriz de programação dinâmica preenchida.}
+\BlankLine
+\tcc{Inicialização}
+\Para{$j = 0$ \Ate $W + 1$}{
+	M[0][j] $\leftarrow$ $0$\;
+}
+\Para{$i = 0$ \Ate $|E| + 1$}{
+	M[i][0] $\leftarrow$ $0$\;
+}
+\BlankLine
+\Para{$i = 1$ \Ate $|E| + 1$}{ 
+	\Para{$j = 1$ \Ate $W + 1$}{
+		\uSe{$w_{i} \le j$}{
+			\uSe{$d_{i} + M[i - 1][j - w_{i}] > M[i][j]$}{
+				$M[i][j] \leftarrow d_{i} + M[i - 1][j - w_{i}]$\;
+			}
+			\Senao{
+				$M[i][j] \leftarrow M[i - 1][j]$\;
+			}
+		}
+		\Senao{
+			$M[i][j] \leftarrow M[i - 1][j]$\;
+		}
+	}
+}
+\Retorna{($M[|E|, W], M$)}
+\label{alg:knap_dp}
+\end{algorithm}
+
+\begin{algorithm}[!ht]
+\caption{knapsack\_sol($d$, $w$, $m$, $W$, $M$, $X$)}
+\Entrada{$w$ custos das arestas de $G$, 
+$m$ número de arestas, $W$ peso máximo da mochila, $M$ matriz de
+programação dinâmica preenchida}
+\Saida{Conjunto solução.}
+\BlankLine
+\Se{$m \neq 0$}{
+	\uSe{$M[m][W] = M[m - 1][W]$}{
+		$knapsack\_sol(d, w, m - 1, W, M, X)$\;
+	}
+	\Senao{
+		$X \leftarrow X \cup \{m\}$\;
+		$knapsack\_sol(d, w, m - 1, W - w_{m}, M, X)$\;
+	}
+}
+\BlankLine
+\label{alg:knap_sol}
+\end{algorithm}
+
+\begin{algorithm}[!ht]
+\caption{knapsack($G = (V, E)$, $d$, $w$, $W$)}
+\Entrada{Grafo $G$ simples não-orientado, $d$ distâncias das arestas de $G$, 
+$w$ custos das arestas de $G$ e $W$ peso máximo da mochila.}
+\Saida{Custo dos itens escolhidos e conjunto solução.}
+\BlankLine
+\tcc{Inicialização}
+$X \leftarrow \emptyset$\;
+\BlankLine
+$(cost, M) \leftarrow knapsack\_dp(G, d, w, W)$\;
+\BlankLine
+$knapsack\_sol(w, |E|, W, M, X)$\;
+\Retorna{($cost, X$)}
+\label{alg:knap}
+\end{algorithm}
+
+\begin{algorithm}[!ht]
+\caption{Dijkstra($G = (V, E)$, $w$, $s$, $t$)}
+\Entrada{Grafo $G$ simples não-orientado, $w$ distâncias das arestas de $G$ e dois vértices distintos $s$ e $t$.}
+\Saida{Vetor com os valores das distâncias e vetor com os valores de predecessores.}
+\BlankLine
+\tcc{Inicialização}
+\ParaCada{vértice $v \in V$}{
+	dist[v] $\leftarrow$ $\infty$\;
+	pred[v] $\leftarrow$ -1\;
+}
+dist[0] $\leftarrow$ 0\;
+\BlankLine
+\tcc{Conjunto de vértices onde as distâncias já foram determinadas}
+$S$ $\leftarrow$ $\emptyset$\;
+\tcc{Conjunto dos vértices não analisados}
+$Q$ $\leftarrow$ $V$\;
+\BlankLine
+\Enqto{$Q$ $\neq$ $\emptyset$}{ 
+	$u$ $\leftarrow$ EXTRACT\_MIN($Q$)\;
+	$S$ $\leftarrow$ $S$ $\cup$ \{$u$\}\;
+	\ParaCada{vértice $v \in$ ADJ($u$)}{
+		\Se{dist[u] + $w[u][v]$ < dist[v]}{
+			dist[v] $\leftarrow$ dist[u] + $w[u][v]$\;
+			pred[v] $\leftarrow$ $u$\;
+		}
+	}
+}
+\Retorna{($dist, pred$)}
+
+\label{alg:dijkstra}
+\end{algorithm}
+
+\begin{algorithm}[!ht]
+\caption{shortest\_path($G = (V, E)$, $w$, $s$, $t$)}
+\Entrada{Grafo $G$ simples não-orientado, $w$ distâncias das arestas de $G$ e dois vértices distintos $s$ e $t$.}
+\Saida{Custo do caminho e as arestas pertencentes ao caminho.}
+\BlankLine
+\tcc{Inicialização}
+$X \leftarrow \emptyset$\;
+$(dist, pred) \leftarrow Dijkstra(G, w, s, t)$\;
+\BlankLine
+$i \leftarrow t$\;
+\Enqto{$i \neq s$}{
+	$j \leftarrow pred[i]$\;
+	$X \leftarrow X \cup \{(i, j)\}$\;
+	$i \leftarrow j$\;
+}
+\BlankLine
+\Retorna{($dist[t], X$)}
+
+\label{alg:shortest_path}
+\end{algorithm}
+

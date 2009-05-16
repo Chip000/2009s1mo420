@@ -1,0 +1,53 @@
+\section{Análise dos Resultados}
+\label{sec:an_res}
+
+\subsection{Características da Máquina}
+\label{subsec:car_maq}
+
+\begin{itemize}
+\item{Processador: Intel(R) Core(TM)2 Duo T8100 @ 2.10 GHz}
+\item{Memória RAM: 4 GB}
+\end{itemize}
+
+\subsection{Parâmetros de Entrada}
+\label{subsec:par_ent}
+
+O programa recebe como parâmetros de entrada a relaxação escolhida, o arquivo da instância a ser testada 
+e o arquivo contendo os parâmetros usados no método do subgradiente.
+
+Para o método do subgradiente foram usados os seguintes parâmetros: fator multiplicativo de $u_{k}$($\alpha$), 
+número máximo de iterações do método do subgradiente(MAX\_ITER) e número de iterações necessárias para
+alterar o valor de $\alpha$ caso o limitante dual não seja modificado (MAX\_ITER\_NO\_IMPROV).
+
+\begin{table}[htb]
+\centering
+\sffamily
+\begin{tabular}{c|c|c|c}
+\thead{parâmetro$\backslash$arquivo} & \thead{param1} & \thead{param2} & \thead{param3} \\
+\hline{}
+$\alpha$ & 2 & 0.1 & 0.01 \\
+\text{MAX\_ITER} & 600 & 1000 & 800 \\
+\text{MAX\_ITER\_NO\_IMPROV} & 10 & 5 & 15  
+\end{tabular}
+\label{tab:par_subgrad}
+\caption{Parâmetros usados na execução do programa para ambas relaxações.}
+\normalfont
+\end{table}
+
+\subsection{Comentários}
+\label{subsec:coment}
+
+Podemos observar alguns pontos ao executar o algoritmo:
+
+\begin{itemize}
+\item{A relaxação \rl{1} obteve limitantes duais ruíns em relação aos obtidos pela relaxação \rl{2}. Isto 
+ocorre devido ao fato que, na maioria das vezes, o resultado da mochila não é um caminho, logo a solução 
+da relaxação não é viável para o \pcmcrc, desta forma não gera bons limitantes primais. Outro fator que pode
+ter influenciado é o força do limitante gerado pela relaxação \rl{2}, que é mais forte em relação ao da
+relaxação \rl{1}.}
+\item{Em geral, o tempo total usado pela relaxação \rl{2} é menor em relação ao obtido pela relaxação \rl{1}.}
+\item{Se reduzimos o valor de $\alpha$, o método do subgradiente executa mais iterações para encontrar um
+bom limitante dual.}
+\item{Se o valor de MAX\_ITER\_NO\_IMPROV for alto, o limitante dual pode não sofrer alterações, mas se for baixo
+o valor de $\alpha$ pode ser reduzido com mais frequência.}
+\end{itemize}

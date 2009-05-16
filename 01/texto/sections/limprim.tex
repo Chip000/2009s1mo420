@@ -1,0 +1,19 @@
+\section{Limitante Primal}
+\label{sec:limprim}
+
+O Limitante Primal (Limitante Superior) para o \pcmcrc{} é encontrado fazendo os seguintes passos:
+
+\begin{enumerate}
+\item{$l \leftarrow 1$.}
+\item{Seja $d[i][j]$ o valor da distância da aresta $(i, j)$ e $c[i][j]$ o valor do custo da aresta $(i, j)$.}
+\item{Enquanto $l \ge 0$, Executar o shortest\_path()~(\ref{alg:shortest_path}), 
+usando como distância $l \cdot d[i][j] + (1 - l) \cdot c[i][j]$ para todas as arestas $(i, j) \in E$}
+\item{Verificar se a restrição de custo é satisfeita. Se for satisfeita vá para o passo 6.}
+\item{Senão $l \leftarrow l - \xi$ onde $ 0 < \xi < 1$ e volte para passo 3.}
+\item{Calcular o valor da solução encontrada.}
+\end{enumerate}
+
+No melhor dos casos o limitante primal vai ser o valor da solução ótima do \mpcmcrc{}. Quando $l = 0$ o problema
+vai minimizar o caminho usando os custos como distância, se este caminho respeita a restrição de custo,
+esta solução irá ser viável.
+
