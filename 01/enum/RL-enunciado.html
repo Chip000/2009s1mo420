@@ -1,0 +1,256 @@
+<!DOCTYPE HTML PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html><head>
+
+
+   <title>Trabalho sobre Relaxação Lagrangeana - MO420&nbsp;/&nbsp;MC908 - 2009s1 </title>
+   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; I; SunOS 5.5 sun4m) [Netscape]">
+</head><body alink="#ff0000" bgcolor="Khaki" link="#0000ee" text="#000000" vlink="#551a8b">
+<a name="inicio"></a>
+<center>
+<h1>
+<a href="http://www.dcc.unicamp.br/%7Ecpg/images/ic-logo-fancy.gif"><img src="RL-enunciado_files/ic-logo-fancy.gif" nosave="" align="center" height="50" width="50"></a>
+&nbsp;<a href="http://www.dcc.unicamp.br/Welcome.html">Instituto
+de Computação</a> - <a href="http://www.unicamp.br/">UNICAMP</a>&nbsp;<a href="http://www.dcc.unicamp.br/%7Ecpg/images/unicamp-logo-fancy.gif"><img src="RL-enunciado_files/unicamp-logo-fancy.gif" nosave="" align="center" height="50" width="50"></a></h1></center>
+
+<center><img src="RL-enunciado_files/gold1.gif" nosave="" height="20" width="568">
+<br>MO420 / MC908 - TÓPICOS EM OTIMIZAÇÃO COMBINATÓRIA
+<br><img src="RL-enunciado_files/gold1.gif" nosave="" height="20" width="568">
+<br><b><i><font color="#009900"><font size="+2">1º Semestre de 2009</font></font></i></b>
+<br><b><i><font color="#009900"><font size="+2">Prof. Cid C. de Souza - IC/UNICAMP</font></font></i></b></center>
+
+
+<p><img src="RL-enunciado_files/blueball.gif" nosave="" height="12" hspace="2" width="12"><font color="#a0522d">Primeiro Trabalho Prático</font>
+
+<br>
+<br>
+
+</p><p align="justify"> Seja <i>G=(V,E)</i> um grafo simples não-orientado
+tal  que, a  cada aresta  <i>e &#8712;  E</i> está  associado  um custo
+positivo  <i>c<sub>e</sub></i> e  uma  distância <i>d<sub>e</sub></i>.
+Dado um caminho <i>P</i> em  <i>G</i>, o custo de <i>P</i> é calculado
+como sendo
+<i>c(P)=&#8721;<sub>e &#8712; P</sub> c<sub>e</sub></i> 
+enquanto o seu comprimento
+é calculado por 
+<i>d(P)=&#8721;<sub>e &#8712; P</sub> d<sub>e</sub></i>.
+
+</p><p align="justify">
+No  <i>Problema  do Caminho  mais  Curto  com  Restrição de  Custo</i>
+(<tt>PCMCRC</tt>),  para o  grafo  <i>G</i> definido  acima, dá-se  um
+inteiro   positivo  <i>C</i>  e   dois  vértices   distintos  <i>s</i>
+e    <i>t</i>   em    <i>V</i>.     O   objetivo    é   encontrar    o
+caminho <i>P<sup>*</sup></i>  de <b>menor</b> comprimento  que liga os
+vértices <i>s</i>  e <i>t</i> em <i>G</i>  tal que <i>c(P<sup>*</sup>)
+&#8804; C</i>.
+
+</p><p align="justify">
+O objetivo  deste trabalho é  usar a técnica de  Relaxação Lagrangeana
+para  produzir bons  limitantes duais  e, quando  possível, limitantes
+primais para o <tt>PCMCRC</tt>.
+
+</p><p align="justify">
+O trabalho será composto de  uma parte envolvendo programação e testes
+computacionais  e uma  outra parte  onde será  preparado  um relatório
+reportando  os resultados  obtidos  e respondendo  a algumas  questões
+listadas a seguir.
+
+</p><p align="justify">
+<font color="blue">Questões   que   devem   estar   respondidas   no
+relatório:</font>
+</p><ol>
+<li>   Descreva   uma  formulação   de   Programação  Linear   Inteira
+(<tt>PLI</tt>)  para  o  <tt>PCMCRC</tt>  contendo  as  restrições  do
+problema  clássico do Caminho  mais Curto  (<tt>PCMC</tt>) e  mais uma
+restrição do  tipo <i>mochila binária</i>  (<tt>KNAP</tt>). Explique o
+significado de  todas variáveis  e de cada  uma das restrições  do seu
+modelo.
+
+</li><li> Existem pelo menos duas formas de aplicar a Relaxação Lagrangeana
+para  o  <tt>PCMCRC</tt>.    Na  relaxação  <i>RL1</i>  dualiza-se  as
+restrições do <tt>PCMC</tt> enquanto na relaxação <i>RL2</i> dualiza-se
+a restrição <tt>KNAP</tt>.
+
+<br>
+Para qual delas o  limitante dual <b>teórico</b> dado pelo <i>Problema
+Dual Lagrangeano</i> é mais forte&nbsp;? Explique cuidadosamente a sua
+resposta.
+
+</li><li>  Qual  o  problema   <i>Problema  Primal  Lagrangeano</i>  a  ser
+resolvido    para   a   relaxação    <i>RL1</i>&nbsp;?   E    para   a
+relaxação <i>RL2</i>&nbsp;?
+
+</li><li> Escreva as fórmulas que expressam o <b>custo Lagrangeano</b> das
+variáveis tanto para <i>RL1</i> quanto para <i>RL2</i>.
+
+</li><li>
+Algoritmos  para  o   <i>Problema  Primal  Lagrangeano</i>  podem  ser
+encontrados em bons  livros texto de disciplinas de  projeto e análise
+de algoritmos para as duas  relaxações. Diga qual o algoritmo que você
+usou para resolver o  <i>Problema Primal Lagrangeano</i> em cada caso,
+destacando a sua complexidade de pior caso, se ele é polinomial ou não
+e citando a fonte das suas informações (referências bibliográficas).
+</li></ol>
+
+<font color="blue">Sobre  a implementação e alguns  resultados a serem
+reportados/analisados:</font>
+<ol>
+<li> Implemente  o método do subgradiente  (<tt>SM</tt>) para resolver
+o <i>Problema Dual Lagrangeano</i> de <i>RL1</i> e de <i>RL2</i>.
+
+</li><li> Execute o <tt>SM</tt> implementado nos dois casos anteriores para
+as  <a href="http://www.ic.unicamp.br/%7Ecid/cursos/MO420/200901/RL-instances.zip">instâncias  de teste</a>.   Os formatos
+dos arquivos para teste são auto-explicativos (abra-os e leia-os)
+
+</li><li> Exiba  tabelas mostrando os  limitantes duais obtidos  pelos dois
+métodos  para todas as  instâncias. Faça  uma análise  comparativa dos
+limitantes duais  obtidos pelos dois  métodos e diga se  os resultados
+obtidos estão de acordo com o que se esperava da teoria.
+
+</li><li> Sempre  que você resolver o <i>Problema  Primal Lagrangeano</i> o
+seu  programa  deverá verificar  se  a  solução  ótima deste  problema
+relaxado é viável  para o <tt>PCMCRC</tt>.  Se for,  o programa deverá
+computar  o  custo do  caminho  correspondente  e  gerar um  limitante
+primal. Armazene e reporte o  valor do melhor limitante encontrado com
+este método  para todas  as instâncias  de teste ou  diga que  não foi
+possível encontrá-lo.
+
+Caso a  solução seja  viável para o  <tt>PCMCRC</tt>, o  programa deve
+verificar ainda se  a solução é ótima.  Escreva  no seu relatório como
+este teste  foi implementado  (ou seja, qual  o resultado  teórico que
+permite  verificar  esta condição)  e  reporte,  se  houver, todas  as
+instâncias  para  as quais  você  conseguiu  comprovar a  otimalidade,
+incluindo o valor ótimo.
+
+Note que as  situações acima referem-se a ambas  as relaxações a serem
+testadas.
+
+</li><li>
+Você  deve   colocar  tabelas   no  relatório  reportando   os  tempos
+computacionais  totais e os  de obtenção  de cada  um dos
+melhores  limitantes duais  e primais  (quando houver)  para  todas as
+instâncias. Faça uma análise comparativa destes tempos.
+
+</li><li>
+Reporte   as   características   da  máquina   onde   os
+experimentos foram  realizados (<i>clock</i>, <i>RAM</i>, processador,
+etc). 
+
+</li><li>
+Reporte  quais foram  os valores  dos parâmetros  usados no  método do
+subgradiente  e  outros  que  alterem  o  comportamento  do  algoritmo
+(tamanho  do passo, taxa  de redução  do tamanho  do passo,  número de
+iterações, etc).
+
+<font color="red">Considere  realizar testes preliminares  que mostrem
+como o  comportamento do  método do subgradiente  é afetado  por estes
+parâmetros (para as duas relaxações&nbsp;!)</font>
+
+</li><li>
+Coloque   o  gráfico  de   pelo  menos   uma  instância   mostrando  a
+variação  dos  limitantes inferior  e  superior  (se tiver)  em
+função  do  número  de  iterações do  método  do  subgradiente.
+Procure  interpretar  o  gráfico,  especialmente aquele  referente  ao
+limitante dual, em função  das mudanças que ocorreram em
+parâmetros   durante    a   execução   do    método   (exemplo:
+alteração no tamanho do passo, melhora do limite primal, etc).
+
+</li><li>
+Os nome das instâncias de entrada (veja mais adiante nesta página como
+baixá-las da rede) são da forma <tt>vXX_dYY.dat</tt>, onde <tt>XX</tt>
+é  o número de  vértices do  grafo de  entrada e  <tt>YY</tt> é  a sua
+densidade. Analise o comportamento  do <tt>SM</tt> das duas relaxações
+em função do aumento do número de vértices e da densidade.
+
+</li></ol>
+
+<p align="justify">
+<font color="#ff0000">Note  que <u><b>não</b></u>  está
+sendo solicitada a implementação do algoritmo de
+<b><u><i>branch-and-bound</i></u></b>   mas,   apenas   a   parte   do
+método do subgradiente !</font>
+ 
+
+</p><p><a name="Considera"></a>
+</p><p><img src="RL-enunciado_files/blueball.gif" nosave="" height="12" hspace="2" width="12"><font color="#a0522d">
+Considerações Gerais:</font>
+
+</p><ul>
+<li>
+Os      trabalhos       deverão      ser      feitos      <font color="#ff0000">individualmente</font>.
+
+</li><li>     O    texto    do     relatório    deverá     ser    preparado
+em     <font color="red">formato    <u>carta</u>,     <i>fonte</i>
+tamanho <u>11</u> ou <u>12</u>,  espaçamento simples e, <b>em hipótese
+alguma</b>, poderá ultrapassar <u>15 (quinze)</u> páginas.</font>
+
+</li><li>
+Os  programas   devem  ser  <font="red"><b>obrigatoriamente</b>
+escritos em  linguagem <t>C</t> ou <t>C++</t> e  devem ser compiláveis
+em uma plataforma <t>Linux</t> usando o <t>gcc</t> (ou <t>g++</t>).
+
+</font="red"></li><li>
+O trabalho  deve ser entregue  por email no seguinte  formato: arquivo
+<font color="magenta"><t>tgz</t></font> que ao ser aberto deverá criar
+(no    diretório    corrente)    um   subdiretório    <t>RAXXXXXX</t>,
+onde <t>XXXXXX<t> é o número  do seu RA.  Este diretório deverá conter
+dois subdiretórios: <b>(1)</b> <t>TEXTO</t>, contendo um arquivo
+<t>texto.pdf</t> (nenhum  outro formato  será aceito) com  o relatório
+reportando os resultados  que você obteve e as  suas análises sobre os
+mesmos, e  <b>(2)</b> <t>CODIGO</t>,  contendo os programas  fonte que
+você implementou e um <font color="blue"><b><t>makefile</t></b></font>
+que  permita sua  compilação (a  ausência deste  arquivo  ou de
+equivalente  será penalizada <b>com  rigor</b>). O  arquivo executável
+gerado pelo <t>makefile</t> deverá <b>obrigatoriamente</b> se chamar
+<tt>relaxlag</tt>.   Este  último  diretório  deverá conter  ainda  um
+arquivo <tt>param</tt> que será lido pelo programa e que conterá todos
+os parâmetros de execução do método do subgradiente.
+
+</t></t></li><li> 
+Para executar o programa, a seguinte linha de comando deverá ser dada:
+<br>
+<tt> relaxlag (num_rel) (arq_inst) </tt>,
+<br>
+onde <tt>num_rel</tt> é  o número da relaxação que  será testada (1 ou
+2) e <tt>arq_inst</tt> é o nome da instância a ser resolvida.
+
+</li><li><font="red"> Recomenda-se <b>fortemente</b> a leitura do excelente
+artigo  de  J.E.    Beasley  intitulado  "Lagrangean  Relaxation",  no
+capítulo 6 do livro  <i>Modern Heuristics Techniques for Combinatorial
+Optimization   Problems</i>   editado   por  <i>Blackwell   Scientific
+Publications</i>,  Oxford.  Este  livro  está  disponível  em  algumas
+bibliotecas  da UNICAMP  e cópias  de pequenas  partes do  capítulo de
+interesse  estão disponíveis na  copiadora do  IA. Vários  detalhes de
+implementação do  método de  subgradientes estão muito  bem discutidos
+neste artigo e serão de grande valia para a realização deste trabalho.
+
+
+</font="red"></li><li> A  <font color="#ff0000">entrega do  trabalho</font> está marcada
+para o  dia <font color="#ff0000">14/05</font>.  O  arquivo contendo o
+trabalho deve ser recebido pelo professor impreterivelmente até
+as 24:00 horas desta data (de acordo com o horário do servidor do IC).
+
+</li><li>   <font color="#ff0000">   <b>IMPORTANTE   I:   </b></font>
+<font color="green">
+A avaliação terá uma componente <u><b>comparativa</b></u>, ou seja, a sua
+nota poderá aumentar ou diminuir em função <u>também</u> do que os outros
+alunos fizeram no trabalho&nbsp;!
+</font>
+
+</li><li> <font color="#ff0000"> <b>IMPORTANTE II: </b></font>  O código
+<t>C</t> deve ser inteiramente desenvolvido por você.  Isto quer dizer
+que o uso de (partes de) códigos baixados da rede será considerado uma
+<b>tentativa  de fraude</b>, contra  a qual  serão aplicadas  todas as
+sanções previstas nas regras da Universidade.   </li>
+
+</ul>
+
+<dt>
+
+<hr width="100%"></dt>
+
+<dt>
+<font color="#a0522d">Cid C. de Souza (última atualização
+em 15/04/2009)</font></dt>
+
+</body></html>
