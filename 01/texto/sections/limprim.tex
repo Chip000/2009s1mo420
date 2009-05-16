@@ -6,7 +6,7 @@ O Limitante Primal (Limitante Superior) para o \pcmcrc{} é encontrado fazendo os
 \begin{enumerate}
 \item{$l \leftarrow 1$.}
 \item{Seja $d[i][j]$ o valor da distância da aresta $(i, j)$ e $c[i][j]$ o valor do custo da aresta $(i, j)$.}
-\item{Enquanto $l \ge 0$, Executar o shortest\_path()~(\ref{alg:shortest_path}), 
+\item{Enquanto $l \ge 0$, Executar o shortest\_path(), 
 usando como distância $l \cdot d[i][j] + (1 - l) \cdot c[i][j]$ para todas as arestas $(i, j) \in E$}
 \item{Verificar se a restrição de custo é satisfeita. Se for satisfeita vá para o passo 6.}
 \item{Senão $l \leftarrow l - \xi$ onde $ 0 < \xi < 1$ e volte para passo 3.}
